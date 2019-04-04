@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<body>
+
+	<form action = "add_shipments.php" method = "post">
+
+	BATCH INFORMATION <br>
+	Date: <input type = "text" name = "batch[date]"> <br>
+	Shippping Company: <input type = "text" name = "batch[shipping_company]"> <br>
+	Source Lab: <input type = "text" name = "batch[source]"> <br>
+	Destination Lab: <input type = "text" name = "batch[destination]"> <br>
+		
+	Tube 1 <br>
+	id: <input type = "text" name = "batch[tubes][tube1][tube_id]"> <br>
+	Tube 2 <br>
+	id: <input type = "text" name = "batch[tubes][tube2][tube_id]"> <br>
+
+
+	<input type = "submit">
+	</form>
+
+</body>
+</html>
