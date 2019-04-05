@@ -12,22 +12,6 @@
 	$tube_columns_toy= array(
 		'sample_id'
 	);
-	
-	$sample_column_dict_final = array(
-		'ID' => 'child_id',
-		'Eval' => 'eval',
-		'Date' => 'date_collected',
-		'Hb' => 'hb',
-		'Pb' => 'pb',
-		'Type' => 'type',
-		/* 'Initial storage conditions' => 'initial_temp', */
-		'BHT' => 'bht',
-		'EDTA' => 'edta',
-		'Foil wrapping' => 'foil_wrapping',
-		'Heparin' => 'heparin',
-		'Heparin + MPA' => 'heparin_mpa',
-		'Other' => 'other'
-	);
 
 	require_once "functions.php";
 	$conn;
