@@ -3,7 +3,8 @@ import './App.css';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import Header from './components/Header';
-import Addsamples from './components/Addsamples';
+import AddSamples from './components/AddSamples';
+import ViewSamples from './components/ViewSamples';
 
 class App extends Component {
   render() {
@@ -21,8 +22,9 @@ class App extends Component {
             <Header /> 
            <Router>
                 <div>
-                    <Route exact path="/" component={Addsamples} />
-                    <Route path="/Addsamples" component={Addsamples} />
+                    <Route exact path="/" component={AddSamples} />
+                    <Route path="/AddSamples" component={AddSamples} />
+                    <Route path="/ViewSamples" component={ViewSamples} />
                 </div>
             </Router>
             </Container>

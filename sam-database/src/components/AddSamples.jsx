@@ -1,23 +1,30 @@
 import React, { Component } from 'react';
-import { Button, ButtonGroup, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
-import './Addsamples.css';
-import Addsamples_aliquots from './Addsamples-aliquots';
-import { Link } from 'react-router-dom';
+import { Alert, Button, ButtonGroup, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
+import AddSamplesAliquots from './AddSamplesAliquots'
 
-class Addsamples extends Component {
+class AddSamples extends Component {
     state = {
-        numAliquots: 1
+        numAliquots: 1,
+        showAlert: false
     }
 
     render() {
         const aliquots = [];
 
         for (var i = 0; i < this.state.numAliquots; i++) {
-            aliquots.push(<Addsamples_aliquots key={i} number={i}/>);
+            aliquots.push(<AddSamplesAliquots key={i} number={i} aliquots='3'/>);
         }
 
         return (
             <div>
+               {this.state.showAlert && 
+                    <div id="alert-banner" isHidden="true">
+                        <Alert variant="success">
+                            Samples successfully saved!
+                        </Alert>
+                   </div>
+                }
+                
                 <h3>Add samples:</h3>
                     <Row>
                         <Col>
@@ -77,18 +84,22 @@ class Addsamples extends Component {
     }
 
     duplicateAliquots = () => {
+        //This may be bad practice... basically I'm doing this so the alert will disappear if you're adding new samples
         this.setState({
-            numAliquots: this.state.numAliquots + 1
+            numAliquots: this.state.numAliquots + 1,
+            showAlert: false
         });
     }
 
     save = () => {
-        //Send data via POST to database
+        //TODO: Send data via POST to database
+        //TODO: Check for errors and post the right banner!
         this.setState({
-            numAliquots: 1
+            numAliquots: 1,
+            showAlert: true
         });
     }
 }
 
-export default Addsamples;
+export default AddSamples;
 

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
-import './Addsamples.css';
-import { Link } from 'react-router-dom';
 
-class Addsamples_aliquots extends Component {
+class AddSamplesAliquots extends Component {
   render() {
     return (
       <div>
@@ -14,13 +12,13 @@ class Addsamples_aliquots extends Component {
                     <InputGroup.Prepend>
                         <InputGroup.Text>Aliquots:</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <FormControl id="aliquots" value={this.props.aliquots}/>
+                    <FormControl id="aliquots" />
                     </InputGroup>
                     <InputGroup className="mb-3">
                     <InputGroup.Prepend>
                         <InputGroup.Text>Type:</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <Form.Control id="type" as="select" value={this.props.type}>
+                    <Form.Control id="type" as="select" >
                         <option>Blood</option>
                         <option>Blood Spot</option>
                         <option>Dust</option> 
@@ -36,7 +34,7 @@ class Addsamples_aliquots extends Component {
                     <InputGroup.Prepend>
                         <InputGroup.Text>Initial storage conditions:</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <Form.Control id="initialstorageconditions" as="select" value={this.props.initialstorageconditions}>
+                    <Form.Control id="initialstorageconditions" as="select">
                         <option>Room temperature</option>
                         <option>4° C</option>
                         <option>-20° C</option>
@@ -49,7 +47,7 @@ class Addsamples_aliquots extends Component {
                     <InputGroup.Prepend>
                         <InputGroup.Text>Treatments:</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <Form.Control id="treatments" as="select" multiple value={this.props.treatments}>
+                    <Form.Control id="treatments" as="select" multiple>
                         <option>BHT</option>
                         <option>EDTA</option>
                         <option>Foil Wrapping</option>
@@ -61,7 +59,7 @@ class Addsamples_aliquots extends Component {
                     <InputGroup.Prepend>
                         <InputGroup.Text>Other treatments:</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <Form.Control id="othertreatments" value={this.props.othertreatments} />
+                    <Form.Control id="othertreatments" />
                     </InputGroup>
                 </Col>
             </Row>
@@ -71,6 +69,6 @@ class Addsamples_aliquots extends Component {
      
 }
 
-export default Addsamples_aliquots;
+export default AddSamplesAliquots;
 
 
