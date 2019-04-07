@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { ButtonGroup } from 'react-bootstrap';
+import CustomHeaderButton from './CustomHeaderButton.jsx';
 
 class Header extends Component {
   render() {
     return (
         <div>
       <ButtonGroup>
-        <Button variant="outline-dark" size="lg" href="/AddSamples">Add Samples</Button>
-        <Button variant="outline-dark" size="lg" href="/ViewSamples">View Samples</Button>
-        <Button variant="outline-dark" size="lg">Add Shipment</Button>
-        <Button variant="outline-dark" size="lg">View Shipments</Button>
+        <CustomHeaderButton href="/AddSamples" text="Add Samples" />
+        <CustomHeaderButton href="/ViewSamples" text="View Samples" />
+        <CustomHeaderButton href="" text="Create Shipment" />
+        <CustomHeaderButton href="" text="View Shipments" />
       </ButtonGroup>
         <hr />
         </div>
