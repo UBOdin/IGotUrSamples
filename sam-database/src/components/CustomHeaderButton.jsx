@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 class CustomHeaderButton extends Component {
     state = {
@@ -8,7 +9,9 @@ class CustomHeaderButton extends Component {
 
     render() {
         return (
-            <Button variant={this.state.variant} href={this.props.href} size="lg">{this.props.text}</Button>
+		<Link to={this.props.href}>
+            <Button variant={this.state.variant} size="lg">{this.props.text}</Button>
+		</Link>
         );
     }
 }

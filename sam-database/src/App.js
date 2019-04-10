@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import Header from './components/Header';
 import AddSamples from './components/AddSamples';
@@ -19,9 +19,9 @@ class App extends Component {
                 </Nav>
             </Navbar>            
             <Container fluid="true">
-            <Header />
            <Router >
                 <div>
+            <Header />
                     <Route exact path="/" component={AddSamples} />
                     <Route path="/AddSamples" component={AddSamples} />
                     <Route path="/ViewSamples" component={ViewSamples} />
