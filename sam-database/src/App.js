@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import Header from './components/Header';
 import AddSamples from './components/AddSamples';
@@ -19,12 +19,15 @@ class App extends Component {
                 </Nav>
             </Navbar>            
             <Container fluid="true">
-           <Router >
+           <Router basename=".">
                 <div>
             <Header />
-                    <Route exact path="/" component={AddSamples} />
+			<Switch>
+                    <Route path="/" exact={true} component={AddSamples} />
                     <Route path="/AddSamples" component={AddSamples} />
                     <Route path="/ViewSamples" component={ViewSamples} />
+			<Redirect to="/" />
+			</Switch>
                 </div>
             </Router>
             </Container>
