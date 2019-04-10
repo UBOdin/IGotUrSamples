@@ -3,9 +3,11 @@
 
 global $conn;
 
-function connect(){
+function connect($host, $user, $password, $db_name, $port){
+
 	global $conn;
-	$conn = new mysqli("localhost", "root", "password", "uruguay_schema", 3306);
+
+	$conn = new mysqli($host, $user, $password, $db_name, $port);
 	if (mysqli_connect_error()) {
 		die("Connection failed: " . mysqli_connect_error());
 	}
@@ -15,6 +17,7 @@ function connect(){
 function add($columns, $values, $table){
 
 	global $conn;
+
 	$query = "";
 	$columns_string = "(";
 	$values_string = "("; 

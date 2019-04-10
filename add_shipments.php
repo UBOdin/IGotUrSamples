@@ -17,9 +17,10 @@
 	
 
 	require_once "functions.php";
-	connect(); 
 
 	/*-----------------------------------------------------------------*/
+
+	connect("localhost", "root", "password", "uruguay_schema", 3306);
 
 	$id = add($batch_shipment_columns, $_POST['batch'], 'Batch_Shipments');
 	foreach($_POST['batch']['tubes'] AS $tube_index => $tube_dict){

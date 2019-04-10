@@ -14,10 +14,10 @@
 	);
 
 	require_once "functions.php";
-	
-	connect();
 
 	/*-----------------------------------------------------------------*/
+
+	connect("localhost", "root", "password", "uruguay_schema", 3306);
 
 	//all_samples element in $_POST contains all dictionaries of samples
 	foreach($_POST['all_samples'] as $sample_index => $samples_dict){
