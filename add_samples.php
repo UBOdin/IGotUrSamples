@@ -14,17 +14,8 @@
 	);
 
 	require_once "functions.php";
-	$conn;
-
-	function connect(&$conn){
-		$conn = new mysqli("localhost", "root", "password", "uruguay_schema", 3306);
-		if (mysqli_connect_error()) {
-			die("Connection failed: " . mysqli_connect_error());
-		}
-		echo "Connected successfully" . "<br>" . "<br>";
-	}
-
-	connect($conn); 
+	
+	connect();
 
 	/*-----------------------------------------------------------------*/
 

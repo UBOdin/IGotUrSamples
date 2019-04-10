@@ -1,13 +1,20 @@
 <?php
-
-// table contains string, representing table name
-// columns contains array of strings, representing all columns in the table
-// values contains dictionary of strings to strings, representing mapping of indexes to values. dictionary could contain non-column related metadata (ex. how many aliquots related to this sample to make on init)
  
+
+global $conn;
+
+function connect(){
+	global $conn;
+	$conn = new mysqli("localhost", "root", "password", "uruguay_schema", 3306);
+	if (mysqli_connect_error()) {
+		die("Connection failed: " . mysqli_connect_error());
+	}
+	echo "Connected successfully" . "<br>" . "<br>";
+}
+
 function add($columns, $values, $table){
 
 	global $conn;
-
 	$query = "";
 	$columns_string = "(";
 	$values_string = "("; 
@@ -35,7 +42,7 @@ function add($columns, $values, $table){
 
 function retrieve_all($table){
 	
-	global$conn;
+	global $conn;
 	
 	$query = "SELECT * FROM ";
 	$query = $query . $table;
