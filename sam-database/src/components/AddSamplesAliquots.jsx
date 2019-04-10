@@ -10,12 +10,6 @@ class AddSamplesAliquots extends Component {
                 <Col>
                     <InputGroup className="mb-3">
                     <InputGroup.Prepend>
-                        <InputGroup.Text>Aliquots:</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl id="aliquots" />
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                    <InputGroup.Prepend>
                         <InputGroup.Text>Type:</InputGroup.Text>
                     </InputGroup.Prepend>
                     <Form.Control id="type" as="select" >
@@ -29,6 +23,12 @@ class AddSamplesAliquots extends Component {
                         <option>Urine</option>
                         <option>Water</option>
                     </Form.Control>
+                    </InputGroup>
+                    <InputGroup className="mb-3">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Aliquots:</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl id="aliquots" />
                     </InputGroup>
                     <InputGroup className="mb-3">
                     <InputGroup.Prepend>

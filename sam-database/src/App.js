@@ -19,8 +19,8 @@ class App extends Component {
                 </Nav>
             </Navbar>            
             <Container fluid="true">
-            <Header /> 
-           <Router>
+            <Header />
+           <Router >
                 <div>
                     <Route exact path="/" component={AddSamples} />
                     <Route path="/AddSamples" component={AddSamples} />
