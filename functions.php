@@ -60,4 +60,26 @@ function retrieve_all($table){
 		}
 	}
 }
+
+function deplete_tubes($values){
+
+	global $conn;
+
+	$query = "DELETE FROM Tubes WHERE tube_id IN (";
+
+	foreach($values as $index=>$value){
+		$query = $query . $value . ",";
+	}
+	$query = substr($query, 0, -1) . ")";
+
+	$result = $conn->query($query);
+	if(!$result){
+		echo "could not delete: " . $query;
+	}
+	else{
+		echo "deleted";
+	}
+
+}
+
 ?>
