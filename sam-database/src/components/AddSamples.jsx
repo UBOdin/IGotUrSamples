@@ -1,40 +1,38 @@
 import React, { Component } from 'react';
-import { Alert, Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
-import AddSamplesAliquots from './AddSamplesAliquots'
+import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
+import CustomAlertBanner from './CustomAlertBanner'
 
 class AddSamples extends Component {
     constructor(props) {
         super(props);
-    this.state = {
-    //change alert visibility to be property of custom banner 
-       showAlert: false,
-        id: '',
-        eval: '',
-        date: '',
-        hb: '',
-        pb: '',
-        density: '',
-        type: '',
-        aliquots: '',
-        initialstorageconditions: '',
-        treatments: '',
-        foil: false,
-        otherTreatments: '',
+        this.state = {
+            id: '',
+            eval: '',
+            date: '',
+            hb: '',
+            pb: '',
+            density: '',
+            type: 'Blood',
+            aliquots: '',
+            initialstorageconditions: 'Room temperature',
+            treatments: [],
+            foil: false,
+            otherTreatments: '',
+            alertVisibility: false,
+            alertText: 'Please enter all required fields.',
+            alertVariant: 'danger',
+        }
+    
+        this.save = this.save.bind(this);
+        this.saveAndAddAnother = this.saveAndAddAnother.bind(this);
     }
-}
 
     render() {
-
         return (
             <div>
-               {this.state.showAlert && 
-                    <div id="alert-banner" isHidden="true">
-                        <Alert variant="success">
-                            Samples successfully saved!
-                        </Alert>
-                   </div>
-                }
-                
+                {this.state.alertVisibility &&
+                <CustomAlertBanner variant={this.state.alertVariant} text={this.state.alertText}/>
+                }            
                 <h3>Add samples:</h3>
                     <Row>
                         <Col>
@@ -187,36 +185,77 @@ class AddSamples extends Component {
     }
 
     saveAndAddAnother = () => {
+
+        this.validateForms();
+        
         this.setState({
             showAlert: true,
-            type: '',
+            type: 'Blood',
             aliquots: '',
-            initialstorageconditions: '',
+            initialstorageconditions: 'Room temperature',
             treatments: '',
             foil: false,
-            otherTreatments: ''
+            otherTreatments: '',
+            alertVisibility: true,
         });
     }
 
     save = () => {
         //TODO: Send data via POST to database
         //TODO: Check for errors and post the right banner!
-        this.setState({
-            showAlert: true,
-            id: '',
-            eval: '',
-            date: '',
-            hb: '',
-            pb: '',
-            density: '',
-            type: '',
-            aliquots: '',
-            initialstorageconditions: '',
-            treatments: '',
-            foil: false,
-            otherTreatments: ''
-        });
+        var errors = this.validateForms();
+
+        if (!errors) {
+            this.setState({
+                id: '',
+                eval: '',
+                date: '',
+                hb: '',
+                pb: '',
+                density: '',
+                type: 'Blood',
+                aliquots: '',
+                initialstorageconditions: 'Room temperature',
+                treatments: '',
+                foil: false,
+                otherTreatments: '',
+            });
+        }
+    }
+
+    validateForms = () => {
+        var numberFormat = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
+        var errorString = ''
+        var errors = false;
+        
+        if (this.state.id === '' || this.state.eval === ''|| this.state.date === '' || this.state.type === '' || this.state.aliquots === '' || this.state.initialstorageconditions === '') {
+        errors = true;
+        errorString += 'Please enter all required fields. ';
+        } 
+
+        if ((this.state.hb != '' && !this.state.hb.match(numberFormat)) || (this.state.pb != '' && !this.state.pb.match(numberFormat))) {
+            errors = true;
+           errorString += 'Please enter Hb and Pb in the correct format (eg. 3.3).';
+        }
+
+        if (errors) {
+            this.setState({
+               alertVariant: 'danger',
+                alertText: errorString,
+                alertVisibility: true,
+            });
+            
+            return true;
+        } else {
+            this.setState({
+                alertVariant: 'success',
+                alertText: 'Success!',
+                alertVisibility: true,
+            });
+            return false;
+        }
     }
 }
+
 export default AddSamples;
 
