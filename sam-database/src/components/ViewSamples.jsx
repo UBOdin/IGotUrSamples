@@ -2,12 +2,34 @@ import React, { Component } from 'react';
 import { Button, ButtonGroup, Row, Col } from 'react-bootstrap';
 import Search from './Search';
 import CustomTable from './CustomTable';
+import jQuery from 'jquery';
 
 class ViewSamples extends Component {
-    state = {
-        //Eventually this will need to respond to number of samples in database, obviously
-        numRows: 8
-    }
+	state = {
+        	//8 is arbitrary here, just to tell the difference between nothing back from db vs. initial state
+        	numRows: 8,
+		samples: [],
+		connection: [],
+    	}
+
+	componentDidMount() {
+		jQuery.ajax({
+			type: "POST",
+			url: 'https://cse.buffalo.edu/eehuruguaydatabase/scripts/connect_experimental.php',
+			data: { arguments: ['tethys.cse.buffalo.edu', 'blakecoo', 'ChangeMe', 'eehuruguayresearch_db', '3306'], table: ['Samples']},
+			dataType: 'json',
+			success: function (obj, textstatus) {
+					this.setState({ samples: obj.result });
+					console.log(this.state.connection);
+				}.bind(this),
+			error: function(obj, textStatus) {
+					console.log(textStatus);
+				}.bind(this)
+			});
+
+
+		this.setState({ numRows: this.state.samples.length });
+	}
 
     render() {
         return (
