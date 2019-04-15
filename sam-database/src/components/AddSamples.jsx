@@ -165,7 +165,7 @@ class AddSamples extends Component {
                             value={this.state.foil}
                             onChange={e => this.setState({foil: e.target.value})}/>
                     </InputGroup.Prepend>
-                    <Form.Control>Foil wrapping?
+                    <Form.Control value="Foil wrapping?">
                     </Form.Control>
                     </InputGroup>
                     <InputGroup>
