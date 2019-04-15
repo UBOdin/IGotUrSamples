@@ -145,7 +145,7 @@ class AddSamples extends Component {
                 <Col>
                     <InputGroup className="mb-3">
                     <InputGroup.Prepend>
-                        <InputGroup.Text>Treatments:</InputGroup.Text>
+                        <InputGroup.Text>Additives:</InputGroup.Text>
                     </InputGroup.Prepend>
                     <Form.Control 
                         id="treatments" 
@@ -154,9 +154,18 @@ class AddSamples extends Component {
                         onChange={e => this.setState({treatments: e.target.value})}>
                         <option>BHT</option>
                         <option>EDTA</option>
-                        <option>Foil Wrapping</option>
                         <option>Heparin</option>
                         <option>MPA</option>
+                    </Form.Control>
+                    </InputGroup>
+                    <InputGroup>
+                    <InputGroup.Prepend>
+                        <InputGroup.Checkbox 
+                            id="foil"
+                            value={this.state.foil}
+                            onChange={e => this.setState({foil: e.target.value})}/>
+                    </InputGroup.Prepend>
+                    <Form.Control>Foil wrapping?
                     </Form.Control>
                     </InputGroup>
                     <InputGroup>

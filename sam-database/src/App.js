@@ -5,6 +5,8 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import Header from './components/Header';
 import AddSamples from './components/AddSamples';
 import ViewSamples from './components/ViewSamples';
+import ViewShipments from './components/ViewShipments';
+import AddShipments from './components/AddShipments';
 
 class App extends Component {
   render() {
@@ -26,6 +28,8 @@ class App extends Component {
                     <Route path="/" exact={true} component={AddSamples} />
                     <Route path="/AddSamples" component={AddSamples} />
                     <Route path="/ViewSamples" component={ViewSamples} />
+                    <Route path="/ViewShipments" component={ViewShipments} />
+                    <Route path="/AddShipments" component={AddShipments} />
 			<Redirect to="/" />
 			</Switch>
                 </div>
