@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Button, ButtonGroup, Row, Col } from 'react-bootstrap';
 import Search from './Search';
 import CustomTable from './CustomTable';
-import jQuery from 'jquery';
 
 class ViewSamples extends Component {
 	state = {
@@ -14,7 +13,6 @@ class ViewSamples extends Component {
 
 	componentDidMount() {
 		var request;
-		var data;
 
 		request = new XMLHttpRequest();
 		request.open(

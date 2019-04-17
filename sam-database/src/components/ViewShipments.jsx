@@ -24,9 +24,12 @@ class ViewShipments extends Component {
                         {this.state.numRows} shipments
                     </Col>
                 </Row>
-		<hr />
-                <CustomTable numCols={4} numRows={this.state.numRows} cols={['Date','From','To','Number of samples']} />
-            </div>
+
+				<hr />
+                
+				<CustomTable numCols={4} numRows={this.state.numRows} cols={['Date','From','To','Number of samples']} />
+            
+			</div>
         )                
     };
 }

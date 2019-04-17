@@ -25,9 +25,7 @@ class CustomTable extends Component {
                         { headerCols }
                     </tr>
                 </thead>
-                <tbody>
-                { rows }
-                </tbody>
+                <tbody>{ rows }</tbody>
             </Table>
         )
     };

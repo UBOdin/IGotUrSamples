@@ -11,8 +11,10 @@ class Search extends Component {
                         <Button variant="outline-dark">Search</Button>
                     </InputGroup.Append>
                 </InputGroup> 
-                <hr />
-            </div>                   
+            
+				<hr />
+            
+			</div>                   
         )
     };
 }
