@@ -105,15 +105,18 @@ class AddShipments extends Component {
                         </Button>
                     </ButtonGroup>
                 </div>
+		<hr />
                 <Search />
                 <Row>
                     <Col>
                        <CustomTable numCols={4} numRows={8} cols={['ID','Eval','Date','Aliquots']} />
                     </Col>
                     <Col md="auto">
-                        <Button>Add to</Button><br/>
-                        <Button>Remove</Button> 
-                    </Col>
+			<div style={{padding: 25}}>
+                        <Button as="input" value=">>" variant="dark"></Button><p/>
+                        <Button as="input" value="<<" variant="dark"></Button> 
+                  </div>
+		    </Col>
                     <Col>
                         <CustomTable numCols={4} numRows={8} cols={['ID','Eval','Date','Aliquots']} />
                     </Col>

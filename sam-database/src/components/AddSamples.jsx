@@ -3,8 +3,8 @@ import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 're
 import CustomAlertBanner from './CustomAlertBanner'
 
 class AddSamples extends Component {
-    constructor(props) {
-        super(props);
+	constructor(props) {
+    	super(props);
         this.state = {
             id: '',
             eval: '',
@@ -168,8 +168,9 @@ class AddSamples extends Component {
                     <Form.Control value="Foil wrapping?">
                     </Form.Control>
                     </InputGroup>
+			<p />
                     <InputGroup>
-                    <InputGroup.Prepend>
+			<InputGroup.Prepend>
                         <InputGroup.Text>Other treatments:</InputGroup.Text>
                     </InputGroup.Prepend>
                     <Form.Control id="othertreatments"
