@@ -1,5 +1,7 @@
 <?php
 
+	include 'secrets.php';
+
 //	$host = $_GET["host"];
 //	$user = $_GET["user"];
 //	$password = $_GET["password"];
@@ -7,7 +9,7 @@
 
 //	echo "This message appears whether successfully connected or not.";
 
-	$conn = new mysqli("tethys.cse.buffalo.edu","blakecoo","fiddle protrude repost barbeque","eehuruguayresearch_db",3306);
+	$conn = new mysqli("tethys.cse.buffalo.edu","blakecoo",$password,"eehuruguayresearch_db",3306);
 
 //	echo mysqli_connect_errno() . mysqli_connect_error();
 //	echo "This comes after.";
