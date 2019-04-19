@@ -18,7 +18,7 @@ class App extends Component {
                 	</Navbar.Brand>
                 	<Nav className="justify-content-end">
                     	<Nav.Link href="/login">Log in</Nav.Link>
-                    	<Nav.Link href="/help">Help</Nav.Link>
+                    	<Nav.Link href="/help.html" target="_blank">Help</Nav.Link>
                 	</Nav>
             	</Navbar>            
             	<Container fluid="true">

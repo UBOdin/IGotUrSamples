@@ -179,6 +179,8 @@ class AddSamples extends Component {
                 	</Col>
                	</Row>
 
+				<p />
+	
                 <div>
                     <ButtonGroup>
                         <Button variant="dark" size="lg" onClick={this.saveAndAddAnother}>

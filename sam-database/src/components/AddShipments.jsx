@@ -14,7 +14,9 @@ class AddShipments extends Component {
             to: '',
             numbersamples: '0',
             storageconditions: '',
-            notes: '',
+			shippingconditions: '',
+			othershippingconditions: '',
+			notes: '',
             alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
@@ -85,7 +87,29 @@ class AddShipments extends Component {
                         				<option>-80° C</option>
                     			</Form.Control>
                     		</InputGroup>
-                    		<InputGroup>
+							<InputGroup className="mb-3">
+								<InputGroup.Prepend>
+									<InputGroup.Text>Shipping Conditions:</InputGroup.Text>
+								</InputGroup.Prepend>
+								<Form.Control
+									id="shippingconditions"
+									as="select"
+									value={this.state.shippingconditions}
+                        			onChange={e => this.setState({shippingconditions: e.target.value})}>
+										<option>None</option>
+										<option>Dry ice</option>
+										<option>Ice packs</option>
+								</Form.Control>
+							</InputGroup>
+							<InputGroup className="mb-3">
+								<InputGroup.Prepend>
+									<InputGroup.Text>Other shipping conditions:</InputGroup.Text>
+								</InputGroup.Prepend>
+								<Form.Control id="othershippingconditions"
+									value={this.state.othershippingconditions}
+                        		onChange={e => this.setState({othershippingconditions: e.target.value})}/>
+							</InputGroup>
+							<InputGroup>
                     			<InputGroup.Prepend>
                         			<InputGroup.Text>Notes:</InputGroup.Text>
                     			</InputGroup.Prepend>
@@ -93,17 +117,25 @@ class AddShipments extends Component {
                         			value={this.state.notes}
                         			onChange={e => this.setState({notes: e.target.value})}/>
                     		</InputGroup>
-                    		<p style={{padding:30}}>Number of samples: {this.state.numbersamples}</p>
                 		</Col>
                		</Row>
 
-                	<div>
-                    	<ButtonGroup>
-                        	<Button variant="dark" size="lg" onClick={this.save}>
-                            	Save
-                        	</Button>
-                    	</ButtonGroup>
-                	</div>
+					<p />
+
+					<div>
+                		<Row>
+                    		<Col>
+                        		<ButtonGroup>
+                            		<Button variant="dark" size="lg" onClick={this.save}>
+										Save
+									</Button>
+                        		</ButtonGroup>
+                    		</Col>
+                    		<Col align="right">
+                        		{this.state.numbersamples} samples in shipment
+                    		</Col>
+                		</Row>
+					</div>
 
 					<hr />
 
