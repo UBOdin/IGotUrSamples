@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
 import CustomAlertBanner from './CustomAlertBanner'
+import DatePicker from 'react-datepicker'
+
+import 'react-datepicker/dist/react-datepicker.css'
 
 class AddSamples extends Component {
 	constructor(props) {
@@ -8,7 +11,7 @@ class AddSamples extends Component {
         this.state = {
             id: '',
             eval: '',
-            date: '',
+            date: new Date(),
             hb: '',
             pb: '',
             density: '',
@@ -22,10 +25,16 @@ class AddSamples extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
         }
-    
+    	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
         this.saveAndAddAnother = this.saveAndAddAnother.bind(this);
     }
+
+	handleChange(date) {
+		this.setState({
+			date: date,
+		});
+	}
 
     render() {
         return (
@@ -58,10 +67,13 @@ class AddSamples extends Component {
                             <InputGroup.Prepend>
                             	<InputGroup.Text>Date:</InputGroup.Text>
                             </InputGroup.Prepend>
-                            <FormControl
-                            	id="date"
-                                value={this.state.date}
-                                onChange={e => this.setState({date: e.target.value})}/>
+							<DatePicker 
+								className="form-control"
+								style={{ width: '100%' }}
+								fixedHeight={false}
+								selected={this.state.date}
+								onChange={this.handleChange}
+							/>
                         </InputGroup>
 					</Col>
                     <Col>
@@ -234,7 +246,7 @@ class AddSamples extends Component {
 
     validateForms = () => {
         var numberFormat = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
-        var errorString = ''
+        var errorString = '';
         var errors = false;
         
         if (this.state.id === '' || this.state.eval === ''|| this.state.date === '' || this.state.type === '' || this.state.aliquots === '' || this.state.initialstorageconditions === '') {

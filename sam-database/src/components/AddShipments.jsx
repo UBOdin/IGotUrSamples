@@ -3,14 +3,15 @@ import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 're
 import CustomAlertBanner from './CustomAlertBanner'
 import Search from './Search';
 import CustomTable from './CustomTable'; 
+import DatePicker from 'react-datepicker'
+
+import 'react-datepicker/dist/react-datepicker.css'
 
 class AddShipments extends Component {
 	constructor(props) {
     	super(props);
         this.state = {
-            id: '',
-            date: '',
-            from: '',
+            date: new Date(),
             to: '',
             numbersamples: '0',
             storageconditions: '',
@@ -21,9 +22,15 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
         }
-    
+    	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
     }
+	
+	handleChange(date) {
+		this.setState({
+			date: date,
+		});
+	}
 
     render() {
         return (
@@ -34,33 +41,18 @@ class AddShipments extends Component {
                 <h3>Add shipments:</h3>
                     <Row>
                         <Col>
-                            <InputGroup className="mb-3">
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>ID:</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <FormControl
-                                	id="id" 
-                                    value={this.state.id}
-                                    onChange={e => this.setState({id: e.target.value})}/>
-                            </InputGroup>
-                            <InputGroup className="mb-3">
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>Date:</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <FormControl
-                                    id="date"
-                                    value={this.state.date}
-                                    onChange={e => this.setState({date: e.target.value})}/>
-                            </InputGroup>
-                            <InputGroup className="mb-3">
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>From:</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <FormControl
-                                    id="from"
-                                    value={this.state.from}
-                                    onChange={e => this.setState({from: e.target.value})}/>
-                            </InputGroup>
+                        	<InputGroup className="mb-3">
+                            <InputGroup.Prepend>
+                            	<InputGroup.Text>Date:</InputGroup.Text>
+                            </InputGroup.Prepend>
+							<DatePicker 
+								className="form-control"
+								style={{ width: '100%' }}
+								fixedHeight={false}
+								selected={this.state.date}
+								onChange={this.handleChange}
+							/>
+                        </InputGroup>
                             <InputGroup className="mb-3">
                                 <InputGroup.Prepend>
                                     <InputGroup.Text>To:</InputGroup.Text>
@@ -70,8 +62,6 @@ class AddShipments extends Component {
                                     value={this.state.to}
                                     onChange={e => this.setState({to: e.target.value})}/>
                             </InputGroup>
-                        </Col>
-                        <Col>
                     		<InputGroup className="mb-3">
                     			<InputGroup.Prepend>
                         			<InputGroup.Text>Storage conditions:</InputGroup.Text>
@@ -87,6 +77,8 @@ class AddShipments extends Component {
                         				<option>-80° C</option>
                     			</Form.Control>
                     		</InputGroup>
+                        </Col>
+                        <Col>
 							<InputGroup className="mb-3">
 								<InputGroup.Prepend>
 									<InputGroup.Text>Shipping Conditions:</InputGroup.Text>
@@ -161,13 +153,49 @@ class AddShipments extends Component {
 
     	save = () => {
         	//TODO: Send data via POST to database
-        	//TODO: Check for errors and post the right banner!
-    	}
+			var errors = this.validateForms();
+
+			if (!errors) {
+				this.setState({
+					date: '',
+					to: '',
+					numbersamples: '0',
+					storageconditions: '',
+					shippingconditions: '',
+					othershippingconditions: '',
+					notes: '',
+					alertVisibility: true,
+				});
+			}
+		}
 
     	validateForms = () => {
-		//TODO
+		var errorString = '';
+		var errors = false;
+
+		if (this.state.to === '') {
+			errors = true;
+			errorString = "Please enter the shipment's recipient in the 'To:' field."
+		}
+
+		if (errors) {
+			this.setState({
+				alertVariant: 'danger',
+				alertText: errorString,
+				alertVisibility: true,
+			});
+			return true;
+		} else {
+			this.setState({
+				alertVariant: 'success',
+				alertText: 'Success!',
+				alertVisibility: true,
+			});
+
+			return false;
 		}
 	}
+}
 
 export default AddShipments;
 
