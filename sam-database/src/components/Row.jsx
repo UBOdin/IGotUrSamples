@@ -3,7 +3,7 @@ import { Form } from 'react-bootstrap';
 
 class Row extends Component {
     render() {
-        const cols = [];
+	const cols = [];
 
         for (var i = 0; i < this.props.numCols; i++) {
             cols.push(<td></td>);
@@ -12,7 +12,8 @@ class Row extends Component {
         return (
             <tr>
                 <td>
-                    <Form.Check id={this.props.key} />
+                    <Form.Check id={this.props.key}
+						checked={this.props.checked}/>
                 </td>
                 { cols }
             </tr>

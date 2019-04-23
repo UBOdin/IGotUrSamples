@@ -47,7 +47,6 @@ class AddShipments extends Component {
                             </InputGroup.Prepend>
 							<DatePicker 
 								className="form-control"
-								style={{ width: '92%' }}
 								fixedHeight={false}
 								selected={this.state.date}
 								onChange={this.handleChange}

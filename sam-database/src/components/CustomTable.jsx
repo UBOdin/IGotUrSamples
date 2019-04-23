@@ -3,6 +3,12 @@ import { Table, Form } from 'react-bootstrap';
 import Row from './Row';
 
 class CustomTable extends Component {
+	constructor(){
+		super();
+		this.state = { allChecked: false }
+		this.handleSelectAll = this.handleSelectAll.bind(this);
+	}
+
     render() {
         const headerCols = [];
         const rows = [];
@@ -12,7 +18,7 @@ class CustomTable extends Component {
         }
 
         for (var j = 0; j < this.props.numRows;j++) {
-            rows.push(<Row numCols={this.props.numCols} key={j} number={j}/>);
+            rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.allChecked}/>);
         }
 
         return (
@@ -20,7 +26,11 @@ class CustomTable extends Component {
                 <thead>
                     <tr>
                         <th width="3%">
-                            <Form.Check id="selectall" />
+                            <Form.Check 
+								id="selectall"
+								checked={this.state.allChecked}
+								onChange={this.handleSelectAll}
+								/>
                         </th>
                         { headerCols }
                     </tr>
@@ -29,6 +39,10 @@ class CustomTable extends Component {
             </Table>
         )
     };
+
+	handleSelectAll(e) {
+		this.setState({ allChecked: e.target.checked });
+	};
 }
 
 export default CustomTable;
