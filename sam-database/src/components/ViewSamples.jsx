@@ -17,7 +17,7 @@ class ViewSamples extends Component {
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/scripts/connect.php?host=tethys.cse.buffalo.edu:3306&user=blakecoo&password=ChangeMe&db_name=eehuruguayresearch_db",
+			"https://cse.buffalo.edu/eehuruguayresearch/scripts/connect.php",
 			true
 		);
 		request.onload = function (e) {
