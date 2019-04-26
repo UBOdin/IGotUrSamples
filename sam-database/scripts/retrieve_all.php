@@ -7,7 +7,7 @@ include "connect.php";
 	
 	$conn = connect();
 
-	$result = $conn->query($query);
+	$result = mysql_connect($query, $conn);
 	$answer = array();
 	$rows = mysqli_num_rows($result);
 	for($j=0 ; $j<$rows; ++$j){

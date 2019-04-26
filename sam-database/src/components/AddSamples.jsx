@@ -17,11 +17,15 @@ class AddSamples extends Component {
             density: '',
             type: 'Blood',
             aliquots: '',
-            initialstorageconditions: 'Room temperature',
-            treatments: [],
-            foil: false,
-            otherTreatments: '',
-            alertVisibility: false,
+			initialstorageconditions: 'Room temperature',
+            bht: false,
+			edta: false,
+			heparin: false,
+			mpa: false,
+			foil: false,
+			otherTreatments: '',
+			consent: '',
+			alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
         }
@@ -63,7 +67,8 @@ class AddSamples extends Component {
                                 value={this.state.eval}
                                 onChange={e => this.setState({eval: e.target.value})}/>
                         </InputGroup>
-                        <InputGroup className="mb-3">
+
+						<InputGroup className="mb-3">
                             <InputGroup.Prepend>
                             	<InputGroup.Text>Date:</InputGroup.Text>
                             </InputGroup.Prepend>
@@ -74,40 +79,19 @@ class AddSamples extends Component {
 								onChange={this.handleChange}
 							/>
                         </InputGroup>
-					</Col>
-                    <Col>
-                    	<InputGroup className="mb-3">
-                        	<InputGroup.Prepend>
-                        		<InputGroup.Text>Hb:</InputGroup.Text>
-                        	</InputGroup.Prepend>
-                        	<FormControl
-                        		id="hb"
-                            	value={this.state.hb}
-                                onChange={e => this.setState({hb: e.target.value})}/>
-                        </InputGroup>
-                        <InputGroup className="mb-3">
-                            <InputGroup.Prepend>
-                            	<InputGroup.Text>Pb:</InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <FormControl
-                            	id="pb"
-                                value={this.state.pb}
-                                onChange={e => this.setState({pb: e.target.value})}/>
-                        </InputGroup>
-                        <InputGroup className="mb-3">
-                        	<InputGroup.Prepend>
-                            	<InputGroup.Text>Density:</InputGroup.Text>
-                            </InputGroup.Prepend>
-                            <FormControl
-                            	id="density"
-                                value={this.state.density}
-                                onChange={e => this.setState({density: e.target.value})}/>
-                        </InputGroup>
-					</Col>
-                </Row>
-                <hr />
-                <Row>
-                	<Col>
+						<InputGroup className="mb-3">
+							<InputGroup.Prepend>
+								<InputGroup.Text>Unrestricted consent for samples?</InputGroup.Text>
+							</InputGroup.Prepend>
+							<FormControl
+								id="consent"
+								as="select"
+								onChange={e => this.setState({consent: e.target.value})}>
+									<option></option>
+									<option>Yes</option>
+									<option>No</option>
+							</FormControl>
+						</InputGroup>
                     	<InputGroup className="mb-3">
                     		<InputGroup.Prepend>
                         		<InputGroup.Text>Type:</InputGroup.Text>
@@ -152,23 +136,6 @@ class AddSamples extends Component {
                         			<option>-80° C</option>
                     		</Form.Control>
                     	</InputGroup>
-                	</Col>
-                	<Col>
-                    	<InputGroup className="mb-3">
-                    		<InputGroup.Prepend>
-                        		<InputGroup.Text>Additives:</InputGroup.Text>
-                    		</InputGroup.Prepend>
-                    		<Form.Control 
-                        		id="treatments" 
-                        		as="select" multiple
-                        		value={this.state.treatments}
-                        		onChange={e => this.setState({treatments: e.target.value})}>
-                        			<option>BHT</option>
-                        			<option>EDTA</option>
-                        			<option>Heparin</option>
-                        			<option>MPA</option>
-                    		</Form.Control>
-                    	</InputGroup>
                     	<InputGroup>
                     		<InputGroup.Prepend>
                         		<InputGroup.Checkbox 
@@ -177,6 +144,76 @@ class AddSamples extends Component {
                             		onChange={e => this.setState({foil: e.target.value})}/>
                     		</InputGroup.Prepend>
                     		<Form.Control value="Foil wrapping?" />
+                    	</InputGroup>
+					</Col>
+                    <Col>
+                    	<InputGroup className="mb-3">
+                        	<InputGroup.Prepend>
+                        		<InputGroup.Text>Hb:</InputGroup.Text>
+                        	</InputGroup.Prepend>
+                        	<FormControl
+                        		id="hb"
+                            	value={this.state.hb}
+                                onChange={e => this.setState({hb: e.target.value})}/>
+                        </InputGroup>
+                        <InputGroup className="mb-3">
+                            <InputGroup.Prepend>
+                            	<InputGroup.Text>Pb:</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <FormControl
+                            	id="pb"
+                                value={this.state.pb}
+                                onChange={e => this.setState({pb: e.target.value})}/>
+                        </InputGroup>
+                        <InputGroup className="mb-3">
+                        	<InputGroup.Prepend>
+                            	<InputGroup.Text>Density:</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <FormControl
+                            	id="density"
+                                value={this.state.density}
+                                onChange={e => this.setState({density: e.target.value})}/>
+                        </InputGroup>
+                    	<InputGroup className="mb-3">
+                    		<InputGroup.Prepend>
+                        		<InputGroup.Text>Additives:</InputGroup.Text>
+                    		</InputGroup.Prepend>
+						   	<InputGroup>
+                    			<InputGroup.Prepend>
+                        			<InputGroup.Checkbox 
+                            			id="bht"
+                            			value={this.state.bht}
+                            			onChange={e => this.setState({bdt: e.target.value})}/>
+                    			</InputGroup.Prepend>
+                    			<Form.Control value="BHT" />
+                    		</InputGroup>
+						   	<InputGroup>
+                    			<InputGroup.Prepend>
+                        			<InputGroup.Checkbox 
+                            			id="edta"
+                            			value={this.state.edta}
+                            			onChange={e => this.setState({edta: e.target.value})}/>
+                    			</InputGroup.Prepend>
+                    			<Form.Control value="EDTA" />
+                    		</InputGroup>
+						   	<InputGroup>
+                    			<InputGroup.Prepend>
+                        			<InputGroup.Checkbox 
+                            			id="heparin"
+                            			value={this.state.heparin}
+                            			onChange={e => this.setState({heparin: e.target.value})}/>
+                    			</InputGroup.Prepend>
+                    			<Form.Control value="Heparin" />
+                    		</InputGroup>
+						   	<InputGroup>
+                    			<InputGroup.Prepend>
+                        			<InputGroup.Checkbox 
+                            			id="mpa"
+                            			value={this.state.mpa}
+                            			onChange={e => this.setState({mpa: e.target.value})}/>
+                    			</InputGroup.Prepend>
+                    			<Form.Control value="MPA" />
+                    		</InputGroup>
                     	</InputGroup>
 						<p />
                     	<InputGroup>
@@ -187,10 +224,10 @@ class AddSamples extends Component {
                         		value={this.state.othertreatments}
                         		onChange={e => this.setState({othertreatments: e.target.value})}/>
                     	</InputGroup>
-                	</Col>
-               	</Row>
+					</Col>
+                </Row>
 
-				<p />
+				<hr />
 	
                 <div>
                     <ButtonGroup>
@@ -214,7 +251,10 @@ class AddSamples extends Component {
             type: 'Blood',
             aliquots: '',
             initialstorageconditions: 'Room temperature',
-            treatments: '',
+            bht: false,
+			edta: false,
+			heparin: false,
+			mpa: false,
             foil: false,
             otherTreatments: '',
             alertVisibility: true,
@@ -236,9 +276,13 @@ class AddSamples extends Component {
                 type: 'Blood',
                 aliquots: '',
                 initialstorageconditions: 'Room temperature',
-                treatments: '',
+            	bht: false,
+				edta: false,
+				heparin: false,
+				mpa: false,
                 foil: false,
                 otherTreatments: '',
+				consent: '',
             });
         }
     }
@@ -248,7 +292,7 @@ class AddSamples extends Component {
         var errorString = '';
         var errors = false;
         
-        if (this.state.id === '' || this.state.eval === ''|| this.state.date === '' || this.state.type === '' || this.state.aliquots === '' || this.state.initialstorageconditions === '') {
+        if (this.state.id === '' || this.state.eval === ''|| this.state.date === '' || this.state.type === '' || this.state.aliquots === '' || this.state.initialstorageconditions === '' || this.state.consent === '') {
         	errors = true;
         	errorString += 'Please enter all required fields. ';
         } 
