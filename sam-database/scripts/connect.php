@@ -1,22 +1,21 @@
 <?php
 
-	include 'secrets.php';
+include "secrets.php";
+ini_set("display_errors",1);
 
-//	$host = $_GET["host"];
-//	$user = $_GET["user"];
-//	$password = $_GET["password"];
-//	$db_name = $_GET["db_name"];
+function connect() {
+	
+	try {
 
-	echo "This message appears whether successfully connected or not.";
+		$conn = mysql_connect("tethys.cse.buffalo.edu","blakecoo",$password,"eehuruguayresearch_db");
 
-	$conn = mysqli_connect("tethys.cse.buffalo.edu","blakecoo",$password,"eehuruguayresearch_db");
+	} catch (Exception $e) {
+		echo "Exception caught! ", $e->getMessage(), "\n";
+		exit;
+	}
 
-//	echo mysqli_connect_errno() . mysqli_connect_error();
-	echo "This comes after.";
-//	if (!$conn) {
-//		echo "MySQL connect error";
-//	} else {
-//
-//	echo "connect success" . "<br>" . "<br>";
-//	}
+	return $conn;
+
+}
+
 ?>

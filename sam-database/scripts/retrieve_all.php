@@ -1,10 +1,12 @@
 <?php
 
-function retrieve_all($table, $conn){
+include "connect.php";
 	
 	$query = "SELECT * FROM ";
-	$query = $query . $table;
+	$query = $query . 'Test';
 	
+	$conn = connect();
+
 	$result = $conn->query($query);
 	$answer = array();
 	$rows = mysqli_num_rows($result);
@@ -12,8 +14,8 @@ function retrieve_all($table, $conn){
 		$row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 		$answer[] = $row;
 	}
-	return json_encode($answer);
+	echo json_encode($answer);
 
-}
+
 
 ?>
