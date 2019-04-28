@@ -8,9 +8,9 @@ class Header extends Component {
         <div>
       		<ButtonGroup>
         		<CustomHeaderButton href="/AddSamples" text="Add Samples" />
-        		<CustomHeaderButton href="/ViewSamples" text="View Samples" />
-        		<CustomHeaderButton href="/AddShipments" text="Create Shipment" />
-        		<CustomHeaderButton href="/ViewShipments" text="View Shipments" />
+        		<CustomHeaderButton href="/ViewSamples" text="Filter and Export" />
+        		<CustomHeaderButton href="/AddShipments" text="Create a Shipment" />
+        		<CustomHeaderButton href="/ViewShipments" text="See Shipments" />
       		</ButtonGroup>
 
 			<hr />

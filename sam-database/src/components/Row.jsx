@@ -2,12 +2,16 @@ import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 
 class Row extends Component {
-    render() {
-	const cols = [];
+	constructor(props) {
+		super(props);
+	}
 
-        for (var i = 0; i < this.props.numCols; i++) {
-            cols.push(<td></td>);
-        }
+    render() {
+		const cols = [];
+
+		for (var i = 0; i < this.props.numCols; i++) {
+			cols.push(<td>{this.props.rowData[i]}</td>);
+		}
 
         return (
             <tr>
