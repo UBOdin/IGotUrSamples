@@ -18,7 +18,7 @@ class CustomTable extends Component {
         }
 		
         for (var j = 0; j < this.props.numRows; j++) {
-            rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.allChecked} rowData={this.props.toPopulateWith[j]}/>);
+            rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.allChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols}/>);
         }
 
         return (

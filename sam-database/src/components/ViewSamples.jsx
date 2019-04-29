@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col, Form } from 'react-bootstrap';
 import CustomTable from './CustomTable';
 import Filter from './Filter';
+import DatePicker from 'react-datepicker';
 
 class ViewSamples extends Component {
 	constructor(props) {
@@ -10,17 +11,13 @@ class ViewSamples extends Component {
         	//8 is arbitrary here, just to tell the difference between nothing back from db vs. initial state
         	numRows: 8,
 			connectMsg: '',
-			samples: [
-				["875", "1", "4/28/19", "3", "first sample!"],
-				["875", "2", "4/28/19", "3", ""],
-				["877", "1", "4/28/19", "7", ""],
-				["880", "1", "4/28/19", "6", ""],
-				["881", "1", "4/28/19", "4", ""]
-			],
+			samples: [],
 			connectionstatus: -1,
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
-			filters: [<Filter key={1} number={1} />],
-    	}
+			filters: [<Filter key={1} number={1} parent={this}/>],
+			returnedFilterValues: [],
+ 			DEBUGsampleisarray: false,
+ 		}
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
 		this.processFilter = this.processFilter.bind(this);
@@ -40,6 +37,7 @@ class ViewSamples extends Component {
 				console.log("All clear");
 				this.setState({ 
 					connectMsg: request.responseText,
+					samples: JSON.parse(request.responseText),
 					numRows: this.state.samples.length,
 					connectionstatus: request.status, 
 				});
@@ -68,7 +66,7 @@ class ViewSamples extends Component {
 				<hr />
 				<Row>
                     <Col align="right">
-                        {this.state.numRows} samples CONNECTION: {this.state.connectionstatus} MESSAGE: {this.state.connectMsg}
+                        {this.state.samples.length} samples 
                     </Col>
                 </Row>
                 <CustomTable numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
@@ -112,11 +110,13 @@ class ViewSamples extends Component {
 		//get current processing criterion
 		for (var i = 0; i < this.state.filters.length; i++) {
 			
-			var filterValues = this.state.filters[i].getValue;
+			var filterValues = this.state.returnedFilterValues;
+			var filterType = filterValues[0];
 			var typeNum = 0;
 		    var filterEquality = true;
 
-			for (var j = 0; j < this.state.headers; j++) {
+
+		for (var j = 0; j < this.state.headers; j++) {
 				if (filterValues[0] === this.state.headers[j]) {
 					typeNum = j;
 					break;
@@ -131,11 +131,11 @@ class ViewSamples extends Component {
 			//add all matches (or non-matches) to filtered array
 			for (var j = 0; j < this.state.samples.length; j++) {
 				if (filterEquality) {
-					if (this.state.samples[j][typeNum]) {
+					if (this.state.samples[j][typeNum] === filterValues[2]) {
 						filtered.push(this.state.samples[j]);
 					}
 				} else {
-					if (!this.state.samples[j][typeNum]) {
+					if (this.state.samples[j][typeNum] !== filterValues[2]) {
 						filtered.push(this.state.samples[j]);
 					}
 				}
@@ -146,6 +146,10 @@ class ViewSamples extends Component {
 			//???repeat for other criteria
 		}
 	}
+
+
+
 }
+
 
 export default ViewSamples;

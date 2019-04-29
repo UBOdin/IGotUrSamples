@@ -8,9 +8,10 @@ class Row extends Component {
 
     render() {
 		const cols = [];
+		const rowData = this.props.rowData;
 
 		for (var i = 0; i < this.props.numCols; i++) {
-			cols.push(<td>{this.props.rowData[i]}</td>);
+			cols.push(<td>{rowData[this.props.headers[i].toLowerCase()]}</td>);
 		}
 
         return (

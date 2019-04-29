@@ -159,7 +159,7 @@ class Filter extends Component {
 	};
 
 	getValue() {
-		return ([this.state.type, this.state.equality, this.state.data, this.state.value])
+		this.props.parent.setState({returnedFilterValues: [this.state.type, this.state.equality, this.state.date, this.state.value]});
 	}
 
 	getEquality(e) {

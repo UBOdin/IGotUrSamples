@@ -1,21 +1,17 @@
 <?php
 
+ini_set("display_errors",1);
 include "connect.php";
-	
 	$query = "SELECT * FROM ";
-	$query = $query . 'Test';
-	
+	$query = $query . "Test";
+
 	$conn = connect();
 
-	$result = mysql_connect($query, $conn);
-	$answer = array();
-	$rows = mysqli_num_rows($result);
-	for($j=0 ; $j<$rows; ++$j){
-		$row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-		$answer[] = $row;
-	}
-	echo json_encode($answer);
+class x {
+}
+	
+	$stmt = $conn->prepare($query);
+	$stmt->execute();
 
-
-
+	echo json_encode($stmt->fetchAll(PDO::FETCH_CLASS, "x"));
 ?>

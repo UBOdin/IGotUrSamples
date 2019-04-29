@@ -1,5 +1,7 @@
 <?php
 
-$password = "fiddle protrude repost barbeque";
+function getPassword() {
+	return "fiddle protrude repost barbeque";
+}
 
 ?>
