@@ -82,12 +82,21 @@ class ViewSamples extends Component {
 	exportToCSV() {
 		var element = document.createElement('a');
 
-		var data = 'ID, Eval, Date, Aliquots, Notes\n';
+		var data = 'ID,Eval,Date,HB,PB,Density,Type,Aliquots,Initial storage conditions,Additives,Other treatments,Foil wrapped,Unrestricted consent,Notes\n';
 
 		for (var i = 0; i < this.state.samples.length; i++) {
-			for (var j = 0; j < this.state.samples[i].length; j++) {
-				data = data + this.state.samples[i][j] + ', ';
+
+			for (var key in this.state.samples[i]) {
+				if (this.state.samples[i].hasOwnProperty(key)) {
+					if (key !== "key_internal") {
+						data = data + this.state.samples[i][key] + ', ';
+					}
+				}
 			}
+			
+//			for (var j = 0; j < this.state.samples[i].length; j++) {
+//				data = data + this.state.samples[i][this.state.headers.toLowerCase()] + ', ';
+//			}
 			data = data + '\n';
 		}
 
