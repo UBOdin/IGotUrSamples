@@ -13,6 +13,7 @@ class Filter extends Component {
 		}
 		this.getEquality = this.getEquality.bind(this);
 		this.handleDateChange = this.handleDateChange.bind(this);
+		this.getValue = this.getValue.bind(this);
 	}
 
 	handleDateChange(date) {
@@ -27,10 +28,11 @@ class Filter extends Component {
 			if (this.state.type == 'Additives') {
 				return (
 					<Form.Group controlId="isOrIsnt">
-						<Form.Control as="select"
+						<Form.Control 
+							as="select"
 							onChange={this.getEquality}>
-							<option>includes</option>
-							<option>does not include</option>
+								<option>includes</option>
+								<option>does not include</option>
 						</Form.Control>
 					</Form.Group>
 				)
@@ -60,7 +62,9 @@ class Filter extends Component {
 			} else if (this.state.type == 'Type') {
 				return (
 					<Form.Group controlId="value">
-						<Form.Control as="select">
+						<Form.Control as="select"
+							value={this.state.value}
+							onChange={e => this.setState({value: e.target.value})}>
 							<option>Blood</option>
 							<option>Blood Spot</option>
                        		<option>Dust</option> 
@@ -76,7 +80,8 @@ class Filter extends Component {
 			} else if (this.state.type == 'Initial storage conditions') {
 				return (
 					<Form.Group controlId="value">
-						<Form.Control as="select">
+						<Form.Control as="select"
+							onChange={e => this.setState({value: e.target.value})}>
                        		<option>Room temperature</option>
                        		<option>4° C</option>
                        		<option>-20° C</option>
@@ -87,7 +92,8 @@ class Filter extends Component {
 			} else if (this.state.type == 'Additives') {
 				return (
 					<Form.Group controlId="value">
-						<Form.Control as="select">
+						<Form.Control as="select"
+							onChange={e => this.setState({value: e.target.value})}>
                        		<option>BHT</option>
                        		<option>EDTA</option>
                        		<option>Heparin</option>
@@ -98,7 +104,8 @@ class Filter extends Component {
 			} else if (this.state.type == 'Foil Wrapped' || this.state.type == 'Unrestricted consent') {
 				return (
 					<Form.Group controlId="value">
-						<Form.Control as="select">
+						<Form.Control as="select"
+							onChange={e => this.setState({value: e.target.value})}>
                        		<option>True</option>
                        		<option>False</option>
 						</Form.Control>
@@ -106,7 +113,8 @@ class Filter extends Component {
 				)
 			} else {
 				return (
-					<Form.Group controlId="value">
+					<Form.Group controlId="value"
+							onChange={e => this.setState({value: e.target.value})}>
 						<Form.Control></Form.Control>
 					</Form.Group>
 				)
@@ -120,6 +128,7 @@ class Filter extends Component {
 					<Col md="auto">
 						<Form.Group controlId="type">
 							<Form.Control as="select"
+								value={this.state.type}
 								onChange={e => this.setState({type: e.target.value})}>
 								<option>ID</option>
 								<option>Eval</option>
@@ -148,6 +157,10 @@ class Filter extends Component {
 
 		)
 	};
+
+	getValue() {
+		return ([this.state.type, this.state.equality, this.state.data, this.state.value])
+	}
 
 	getEquality(e) {
 		var equalityVal;

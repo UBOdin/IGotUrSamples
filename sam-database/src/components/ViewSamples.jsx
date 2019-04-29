@@ -18,10 +18,12 @@ class ViewSamples extends Component {
 				["881", "1", "4/28/19", "4", ""]
 			],
 			connectionstatus: -1,
-			filters: [(<Filter key={1} number={1} />)],
+			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
+			filters: [<Filter key={1} number={1} />],
     	}
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
+		this.processFilter = this.processFilter.bind(this);
 	}
 
 	componentDidMount() {
@@ -61,8 +63,8 @@ class ViewSamples extends Component {
             	<h3>Filter and export</h3>
                 {this.state.filters}
 				<Button variant="dark" size="lg" onClick={this.addFilter}>Add another filter</Button>
-				<Button variant="dark" size="lg">Filter</Button>
-                <Button variant="dark" size="lg" onClick={this.exportToCVS}>Export</Button>
+				<Button variant="dark" size="lg" onClick={this.processFilter}>Filter</Button>
+                <Button variant="dark" size="lg" onClick={this.exportToCSV}>Export</Button>
 				<hr />
 				<Row>
                     <Col align="right">
@@ -84,9 +86,9 @@ class ViewSamples extends Component {
 
 		var data = 'ID, Eval, Date, Aliquots, Notes\n';
 
-		for (var item in this.state.samples) {
-			for (var i = 0; i < item.length; i++) {
-				data = data + item[i] + ', ';
+		for (var i = 0; i < this.state.samples.length; i++) {
+			for (var j = 0; j < this.state.samples[i].length; j++) {
+				data = data + this.state.samples[i][j] + ', ';
 			}
 			data = data + '\n';
 		}
@@ -100,6 +102,49 @@ class ViewSamples extends Component {
 		element.click();
 
 		document.body.removeChild(element);
+	}
+
+	processFilter() {
+		//TODO: finish this!
+		//create filtered array
+		var filtered = [];
+
+		//get current processing criterion
+		for (var i = 0; i < this.state.filters.length; i++) {
+			
+			var filterValues = this.state.filters[i].getValue;
+			var typeNum = 0;
+		    var filterEquality = true;
+
+			for (var j = 0; j < this.state.headers; j++) {
+				if (filterValues[0] === this.state.headers[j]) {
+					typeNum = j;
+					break;
+				}
+			}
+
+			//figure out equality
+			if (!filterValues[1]) {
+				filterEquality = false;
+			}
+
+			//add all matches (or non-matches) to filtered array
+			for (var j = 0; j < this.state.samples.length; j++) {
+				if (filterEquality) {
+					if (this.state.samples[j][typeNum]) {
+						filtered.push(this.state.samples[j]);
+					}
+				} else {
+					if (!this.state.samples[j][typeNum]) {
+						filtered.push(this.state.samples[j]);
+					}
+				}
+			}		
+
+			//filtered array becomes samples array
+			this.setState({ samples: filtered });
+			//???repeat for other criteria
+		}
 	}
 }
 
