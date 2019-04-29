@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Row, Col, Form } from 'react-bootstrap';
+import { Button, Row, Col, } from 'react-bootstrap';
 import CustomTable from './CustomTable';
 import Filter from './Filter';
-import DatePicker from 'react-datepicker';
 
 class ViewSamples extends Component {
 	constructor(props) {
@@ -14,13 +13,20 @@ class ViewSamples extends Component {
 			samples: [],
 			connectionstatus: -1,
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
-			filters: [<Filter key={1} number={1} parent={this}/>],
+			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
 			returnedFilterValues: [],
  			DEBUGsampleisarray: false,
  		}
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
 		this.processFilter = this.processFilter.bind(this);
+	}
+
+	getFilterValues = (type, equality, value, key) => {
+		var filterVals = this.state.returnedFilterValues;
+		filterVals[key] = [type,equality,value];
+
+		this.setState({ returnedFilterValues: filterVals});
 	}
 
 	componentDidMount() {
@@ -75,7 +81,7 @@ class ViewSamples extends Component {
 	};
 
 	addFilter() {
-		var newFilterArray = this.state.filters.concat(<Filter key={this.state.filters.length + 1} number={this.state.filters.length + 1} />);
+		var newFilterArray = this.state.filters.concat(<Filter key={this.state.filters.length + 1} number={this.state.filters.length + 1} retVals={this.getFilterValues}/>);
 		this.setState({ filters: newFilterArray });
 	};
 
@@ -116,48 +122,20 @@ class ViewSamples extends Component {
 		//create filtered array
 		var filtered = [];
 
-		//get current processing criterion
+		//for each filter in the array, find the corresponding keyi
 		for (var i = 0; i < this.state.filters.length; i++) {
-			
-			var filterValues = this.state.returnedFilterValues;
-			var filterType = filterValues[0];
-			var typeNum = 0;
-		    var filterEquality = true;
 
+			//if type's not null
+			//if value's not null
+			if (this.state.returnedFilterValues[i][0] !== '' &&
+				this.state.returnedFilterValues[i][2] !== '') {
 
-		for (var j = 0; j < this.state.headers; j++) {
-				if (filterValues[0] === this.state.headers[j]) {
-					typeNum = j;
-					break;
-				}
+				//make SQL query and retrieve all samples that match (or don't match?) filter
 			}
 
-			//figure out equality
-			if (!filterValues[1]) {
-				filterEquality = false;
-			}
-
-			//add all matches (or non-matches) to filtered array
-			for (var j = 0; j < this.state.samples.length; j++) {
-				if (filterEquality) {
-					if (this.state.samples[j][typeNum] === filterValues[2]) {
-						filtered.push(this.state.samples[j]);
-					}
-				} else {
-					if (this.state.samples[j][typeNum] !== filterValues[2]) {
-						filtered.push(this.state.samples[j]);
-					}
-				}
-			}		
-
-			//filtered array becomes samples array
 			this.setState({ samples: filtered });
-			//???repeat for other criteria
 		}
 	}
-
-
-
 }
 
 

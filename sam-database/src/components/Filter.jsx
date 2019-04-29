@@ -13,19 +13,25 @@ class Filter extends Component {
 		}
 		this.getEquality = this.getEquality.bind(this);
 		this.handleDateChange = this.handleDateChange.bind(this);
-		this.getValue = this.getValue.bind(this);
+		this.handleTypeChange = this.handleTypeChange.bind(this);
+		this.handleValueChange = this.handleValueChange.bind(this);
 	}
 
 	handleDateChange(date) {
 		this.setState({
 			date: date,
 		});
+		this.props.retVals(this.state.type, this.state.equality, this.state.date, this.props.key);
+	}
+
+	componentDidRender() {	
+		this.props.retVals(this.state.type, this.state.equality, this.state.date, this.props.key);
 	}
 
 	render() {
 
 		const equalityInput = () => {
-			if (this.state.type == 'Additives') {
+			if (this.state.type === 'Additives') {
 				return (
 					<Form.Group controlId="isOrIsnt">
 						<Form.Control 
@@ -50,7 +56,7 @@ class Filter extends Component {
 		}
 					
 		const input = () => {
-			if (this.state.type == 'Date') {
+			if (this.state.type === 'Date') {
 				return (
 					<DatePicker
 						className="form-control"
@@ -59,12 +65,12 @@ class Filter extends Component {
 						onChange={this.handleDateChange}
 					/>
 				)
-			} else if (this.state.type == 'Type') {
+			} else if (this.state.type === 'Type') {
 				return (
 					<Form.Group controlId="value">
 						<Form.Control as="select"
 							value={this.state.value}
-							onChange={e => this.setState({value: e.target.value})}>
+						onChange={this.handleValueChange}>
 							<option>Blood</option>
 							<option>Blood Spot</option>
                        		<option>Dust</option> 
@@ -77,11 +83,11 @@ class Filter extends Component {
 						</Form.Control>
 					</Form.Group>
 				)
-			} else if (this.state.type == 'Initial storage conditions') {
+			} else if (this.state.type === 'Initial storage conditions') {
 				return (
 					<Form.Group controlId="value">
 						<Form.Control as="select"
-							onChange={e => this.setState({value: e.target.value})}>
+						onChange={this.handleValueChange}>
                        		<option>Room temperature</option>
                        		<option>4° C</option>
                        		<option>-20° C</option>
@@ -89,11 +95,11 @@ class Filter extends Component {
 						</Form.Control>
 					</Form.Group>
 				)
-			} else if (this.state.type == 'Additives') {
+			} else if (this.state.type === 'Additives') {
 				return (
 					<Form.Group controlId="value">
 						<Form.Control as="select"
-							onChange={e => this.setState({value: e.target.value})}>
+						onChange={this.handleValueChange}>
                        		<option>BHT</option>
                        		<option>EDTA</option>
                        		<option>Heparin</option>
@@ -101,11 +107,11 @@ class Filter extends Component {
 						</Form.Control>
 					</Form.Group>
 				)
-			} else if (this.state.type == 'Foil Wrapped' || this.state.type == 'Unrestricted consent') {
+			} else if (this.state.type === 'Foil Wrapped' || this.state.type === 'Unrestricted consent') {
 				return (
 					<Form.Group controlId="value">
 						<Form.Control as="select"
-							onChange={e => this.setState({value: e.target.value})}>
+						onChange={this.handleValueChange}>
                        		<option>True</option>
                        		<option>False</option>
 						</Form.Control>
@@ -114,7 +120,7 @@ class Filter extends Component {
 			} else {
 				return (
 					<Form.Group controlId="value"
-							onChange={e => this.setState({value: e.target.value})}>
+						onChange={this.handleValueChange}>
 						<Form.Control></Form.Control>
 					</Form.Group>
 				)
@@ -129,7 +135,7 @@ class Filter extends Component {
 						<Form.Group controlId="type">
 							<Form.Control as="select"
 								value={this.state.type}
-								onChange={e => this.setState({type: e.target.value})}>
+								onChange={this.handleTypeChange}>
 								<option>ID</option>
 								<option>Eval</option>
 								<option>Date</option>
@@ -158,15 +164,21 @@ class Filter extends Component {
 		)
 	};
 
-	getValue() {
-		this.props.parent.setState({returnedFilterValues: [this.state.type, this.state.equality, this.state.date, this.state.value]});
+	handleTypeChange(e) {
+		this.setState({type: e.target.value});
+		this.props.retVals(this.state.type, this.state.equality, this.state.value, this.props.key);
+
+	}
+	handleValueChange(e) {
+		this.setState({value: e.target.value});
+		this.props.retVals(this.state.type, this.state.equality, this.state.value, this.props.key);
 	}
 
 	getEquality(e) {
 		var equalityVal;
-		if (e.target.value == '=') {
+		if (e.target.value === '=') {
 			equalityVal = true;
-		} else if (e.target.value == "=/=") {
+		} else if (e.target.value === "=/=") {
 			equalityVal = false;
 		}
 
