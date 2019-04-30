@@ -44,13 +44,14 @@ class ViewSamples extends Component {
 				this.setState({ 
 					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
-				numRows: this.state.samples.length,
+					numRows: this.state.samples.length,
 					connectionstatus: request.status, 
 				});
 			} else {
 				console.error(request.statusText);
 				this.setState({
 					connectMsg: request.responseText,
+					numRows: this.state.samples.length,
 					connectionstatus: request.status,
 				});
 			}
@@ -74,7 +75,7 @@ class ViewSamples extends Component {
                         {this.state.samples.length} samples 
                     </Col>
                 </Row>
-                <CustomTable numCols={5} numRows={this.state.numRows} cols={['ID','Eval','Date','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
+                <CustomTable numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
             </div>
     	)
 	};
@@ -150,25 +151,27 @@ class ViewSamples extends Component {
 			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery,
 			true
 		);
-		filterReq.onload = function (e) {
-			if (filterReq.readyState === 4 && filterReq.status === 200) {
+		request.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
 				console.log("All clear");
 				this.setState({ 
-					samples: JSON.parse(filterReq.responseText),
+					samples: JSON.parse(request.responseText),
 					numRows: this.state.samples.length,
-					connectionstatus: filterReq.status, 
+					connectionstatus: request.status, 
 				});
 			} else {
-				console.error(filterReq.statusText);
+				console.error(request.statusText);
 				this.setState({
-					connectMsg: filterReq.responseText,
-					connectionstatus: filterReq.status,
+					connectMsg: request.responseText,
+					connectionstatus: request.status,
 				});
 			}
 		}.bind(this);
 
-		filterReq.send();	
-			
+		request.send();	
+		}
+
+		
 	}
 }
 
