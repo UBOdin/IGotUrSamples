@@ -121,20 +121,57 @@ class ViewSamples extends Component {
 		//TODO: finish this!
 		//create filtered array
 		var filtered = [];
-
+		
+		var getQuery = '';
 		//for each filter in the array, find the corresponding keyi
 		for (var i = 0; i < this.state.filters.length; i++) {
 
-			//if type's not null
+			if (i !== 0) {
+				getQuery = getQuery + '&';
+			}
+
+			//if type's not null (should never be!)
 			//if value's not null
 			if (this.state.returnedFilterValues[i][0] !== '' &&
 				this.state.returnedFilterValues[i][2] !== '') {
 
-				//make SQL query and retrieve all samples that match (or don't match?) filter
+				getQuery = getQuery 
+					+ 't' + i + '=' + this.state.returnedFilterValues[i][0]
+					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1]
+					+ 'v' + i + '=' + this.state.returnedFilterValues[i][2];
 			}
-
-			this.setState({ samples: filtered });
 		}
+				//make SQL query and retrieve all samples that match (or don't match?) filter
+
+		var filterReq;
+
+		filterReq = new XMLHttpRequest();
+		filterReq.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery,
+			true
+		);
+		request.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					samples: JSON.parse(request.responseText),
+					numRows: this.state.samples.length,
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+		request.send();	
+		}
+
+		
 	}
 }
 
