@@ -120,7 +120,6 @@ class ViewSamples extends Component {
 	processFilter() {
 		//TODO: finish this!
 		//create filtered array
-		var filtered = [];
 		
 		var getQuery = '';
 		//for each filter in the array, find the corresponding keyi
@@ -151,28 +150,28 @@ class ViewSamples extends Component {
 			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery,
 			true
 		);
-		request.onload = function (e) {
-			if (request.readyState === 4 && request.status === 200) {
+		filterReq.onload = function (e) {
+			if (filterReq.readyState === 4 && filterReq.status === 200) {
 				console.log("All clear");
 				this.setState({ 
-					samples: JSON.parse(request.responseText),
+					samples: JSON.parse(filterReq.responseText),
 					numRows: this.state.samples.length,
-					connectionstatus: request.status, 
+					connectionstatus: filterReq.status, 
 				});
 			} else {
-				console.error(request.statusText);
+				console.error(filterReq.statusText);
 				this.setState({
-					connectMsg: request.responseText,
-					connectionstatus: request.status,
+					connectMsg: filterReq.responseText,
+					connectionstatus: filterReq.status,
 				});
 			}
 		}.bind(this);
 
-		request.send();	
+		filterReq.send();	
 		}
 
 		
-	}
+	
 }
 
 

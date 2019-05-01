@@ -8,7 +8,7 @@ include "connect.php";
 	
 	foreach ($GET as $key => $value) {
 		//is it a t value?
-		if ($key[0] = 't') {
+		if ($key[0] == 't') {
 
 			$equality = "=";
 
