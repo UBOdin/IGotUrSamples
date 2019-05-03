@@ -13,7 +13,6 @@ class AddShipments extends Component {
         this.state = {
             date: new Date(),
             to: '',
-            numbersamples: '0',
             storageconditions: '',
 			shippingconditions: '',
 			othershippingconditions: '',
@@ -21,6 +20,10 @@ class AddShipments extends Component {
             alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
+			samples: [],
+			samplesadded: [],
+			connectionMsg: '',
+			connectionstatus: -1,
         }
     	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
@@ -30,6 +33,38 @@ class AddShipments extends Component {
 		this.setState({
 			date: date,
 		});
+	}
+
+	componentDidMount() {
+		var request;
+
+		request = new XMLHttpRequest();
+		request.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve_all.php",
+			true
+		);
+		request.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					connectMsg: request.responseText,
+					samples: JSON.parse(request.responseText),
+					numRows: this.state.samples.length,
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					numRows: this.state.samples.length,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+		request.send();	
+		
 	}
 
     render() {
@@ -123,7 +158,7 @@ class AddShipments extends Component {
                         		</ButtonGroup>
                     		</Col>
                     		<Col align="right">
-                        		{this.state.numbersamples} samples in shipment
+                        		{this.state.samplesadded.length} samples in shipment
                     		</Col>
                 		</Row>
 					</div>
@@ -134,7 +169,7 @@ class AddShipments extends Component {
            
 		   			<Row>
                     	<Col>
-                       		<CustomTable numCols={4} numRows={8} cols={['ID','Eval','Date','Aliquots']} />
+                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples}/>
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
@@ -143,7 +178,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={8} cols={['ID','Eval','Date','Aliquots']} />
+                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
                     	</Col>
                 	</Row> 
             	</div>

@@ -4,11 +4,50 @@ import Search from './Search';
 import CustomTable from './CustomTable'; 
 
 class ViewShipments extends Component {
-    state = {
-        //Eventually this will need to respond to number of samples in database, obviously
-        numRows: 8
-    }
+   	constructor(props) {
+		super(props);
+    	this.state = {
+        	//Eventually this will need to respond to number of samples in database, obviously
+        	numRows: 8,
+			connectMsg: '',
+			shipments: [],
+			connectionstatus: -1,
+			headers: ['Date','From','To','Samples'],
+    	}
+	}
 
+
+	componentDidMount() {
+		var request;
+
+		request = new XMLHttpRequest();
+		request.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve_all_shipments.php",
+			true
+		);
+		request.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					connectMsg: request.responseText,
+					shipments: JSON.parse(request.responseText),
+					numRows: this.state.shipments.length,
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					numRows: this.state.shipments.length,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+		request.send();	
+		
+	}
     render() {
         return (
             <div>
@@ -27,7 +66,7 @@ class ViewShipments extends Component {
 
 				<hr />
                 
-				<CustomTable numCols={4} numRows={this.state.numRows} cols={['Date','From','To','Number of samples']} />
+				<CustomTable numCols={4} numRows={this.state.shipments.length} cols={['Date','From','To','Samples']} toPopulateWith={this.state.shipments} />
             
 			</div>
         )                
