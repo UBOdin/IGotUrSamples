@@ -6,26 +6,51 @@ class Filter extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			type: '',
+			type: 'ID',
 			equality: true,
 			value: '',
 			date: new Date(),
 		}
-		this.getEquality = this.getEquality.bind(this);
-		this.handleDateChange = this.handleDateChange.bind(this);
 		this.handleTypeChange = this.handleTypeChange.bind(this);
+		this.handleEquality = this.handleEquality.bind(this);
 		this.handleValueChange = this.handleValueChange.bind(this);
+		this.handleDateChange = this.handleDateChange.bind(this);
+	}
+
+	handleTypeChange(e) {
+		this.setState({
+			type: e.target.value,
+			value: '',
+		});
+		console.log("type changed to: " + e.target.value);
+		this.props.retVals(e.target.value, this.state.equality, this.state.value, this.props.number);
+
+	}
+
+	handleEquality(e) {
+		var equalityVal;
+		if (e.target.value === 'equals' ||
+			e.target.value === 'include' ) {
+			equalityVal = true;
+		} else if (e.target.value === 'does not equal' ||
+			e.target.value === 'do not include') {
+			equalityVal = false;
+		}
+
+		this.setState ({ equality: equalityVal });
+		this.props.retVals(this.state.type, equalityVal, this.state.value, this.props.number);
+	}
+
+	handleValueChange(e) {
+		this.setState({value: e.target.value});
+		this.props.retVals(this.state.type, this.state.equality, e.target.value, this.props.number);
 	}
 
 	handleDateChange(date) {
 		this.setState({
 			date: date,
 		});
-		this.props.retVals(this.state.type, this.state.equality, this.state.date, this.props.key);
-	}
-
-	componentDidRender() {	
-		this.props.retVals(this.state.type, this.state.equality, this.state.date, this.props.key);
+		this.props.retVals(this.state.type, this.state.equality, date, this.props.number);
 	}
 
 	render() {
@@ -36,9 +61,9 @@ class Filter extends Component {
 					<Form.Group controlId="isOrIsnt">
 						<Form.Control 
 							as="select"
-							onChange={this.getEquality}>
-								<option>includes</option>
-								<option>does not include</option>
+							onChange={this.handleEquality}>
+								<option>include</option>
+								<option>do not include</option>
 						</Form.Control>
 					</Form.Group>
 				)
@@ -46,7 +71,7 @@ class Filter extends Component {
 				return (
 					<Form.Group controlId="isOrIsnt">
 						<Form.Control as="select"
-							onChange={this.getEquality}>
+							onChange={this.handleEquality}>
 							<option>equals</option>
 							<option>does not equal</option>
 						</Form.Control>
@@ -164,28 +189,6 @@ class Filter extends Component {
 		)
 	};
 
-	handleTypeChange(e) {
-		this.setState({type: e.target.value});
-		this.props.retVals(this.state.type, this.state.equality, this.state.value, this.props.key);
-
-	}
-	handleValueChange(e) {
-		this.setState({value: e.target.value});
-		this.props.retVals(this.state.type, this.state.equality, this.state.value, this.props.key);
-	}
-
-	getEquality(e) {
-		var equalityVal;
-		if (e.target.value === '=') {
-			equalityVal = true;
-		} else if (e.target.value === "=/=") {
-			equalityVal = false;
-		}
-
-		if (equalityVal != null) {
-			this.setState ({ equality: equalityVal });
-		}
-	}
 }
 
 

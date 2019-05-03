@@ -60,7 +60,7 @@ class ViewShipments extends Component {
                         </ButtonGroup>
                     </Col>
                     <Col align="right">
-                        {this.state.numRows} shipments
+                        {this.state.shipments.length} shipments
                     </Col>
                 </Row>
 

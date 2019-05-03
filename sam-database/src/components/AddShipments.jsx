@@ -50,14 +50,12 @@ class AddShipments extends Component {
 				this.setState({ 
 					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
-					numRows: this.state.samples.length,
 					connectionstatus: request.status, 
 				});
 			} else {
 				console.error(request.statusText);
 				this.setState({
 					connectMsg: request.responseText,
-					numRows: this.state.samples.length,
 					connectionstatus: request.status,
 				});
 			}
@@ -178,7 +176,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
+                        	<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
                     	</Col>
                 	</Row> 
             	</div>

@@ -15,7 +15,6 @@ class ViewSamples extends Component {
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
 			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
 			returnedFilterValues: [],
- 			DEBUGsampleisarray: false,
  		}
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
@@ -27,7 +26,8 @@ class ViewSamples extends Component {
 		filterVals[key] = [type,equality,value];
 
 		this.setState({ returnedFilterValues: filterVals});
-	}
+		console.log(this.state.returnedFilterValues.toString());
+	};
 
 	componentDidMount() {
 		var request;
@@ -72,7 +72,7 @@ class ViewSamples extends Component {
 				<hr />
 				<Row>
                     <Col align="right">
-                        {this.state.samples.length} samples 
+                        {this.state.samples.length} samples || CONNECTION STATUS: {this.state.connectionstatus} || FILTER VALUES: {this.state.returnedFilterValues.toString()} MESSAGE: {this.state.connectMsg} 
                     </Col>
                 </Row>
                 <CustomTable numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
@@ -119,13 +119,13 @@ class ViewSamples extends Component {
 
 	processFilter() {
 		//TODO: finish this!
-		//create filtered array
-		
+		this.setState({ connectMsg: 'Reached processing method.'});
+
 		var getQuery = '';
 		//for each filter in the array, find the corresponding keyi
-		for (var i = 0; i < this.state.filters.length; i++) {
+		for (var i = 1; i <= this.state.filters.length; i++) {
 
-			if (i !== 0) {
+			if (i !== 1) {
 				getQuery = getQuery + '&';
 			}
 
@@ -135,19 +135,20 @@ class ViewSamples extends Component {
 				this.state.returnedFilterValues[i][2] !== '') {
 
 				getQuery = getQuery 
-					+ 't' + i + '=' + this.state.returnedFilterValues[i][0]
-					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1]
+					+ 't' + i + '=' + this.state.returnedFilterValues[i][0] + '&'
+					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1] + '&'
 					+ 'v' + i + '=' + this.state.returnedFilterValues[i][2];
 			}
 		}
 				//make SQL query and retrieve all samples that match (or don't match?) filter
-
+		this.setState({ connectMsg: 'Created GET query' });
 		var filterReq;
-
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery;
+		console.log(getReq)
 		filterReq = new XMLHttpRequest();
 		filterReq.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery,
+			getReq,
 			true
 		);
 		filterReq.onload = function (e) {
@@ -156,7 +157,8 @@ class ViewSamples extends Component {
 				this.setState({ 
 					samples: JSON.parse(filterReq.responseText),
 					numRows: this.state.samples.length,
-					connectionstatus: filterReq.status, 
+					connectionstatus: filterReq.status,
+					connectmsg: filterReq.responseText
 				});
 			} else {
 				console.error(filterReq.statusText);
@@ -166,7 +168,7 @@ class ViewSamples extends Component {
 				});
 			}
 		}.bind(this);
-
+		this.setState({ connectMsg: 'About to send GET request' });
 		filterReq.send();	
 		}
 

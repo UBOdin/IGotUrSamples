@@ -6,21 +6,28 @@ include "connect.php";
 	$query = "SELECT * FROM ";
 	$query = $query . "Test ";
 	
-	foreach ($GET as $key => $value) {
+	$type;
+	$equality;
+	$val; 
+
+	foreach ($_GET as $key => $value) {
 		//is it a t value?
 		if ($key[0] == 't') {
-
+			$type = $value;
+		} else if ($key[0] == 'e') {
 			$equality = "=";
 
 			//get next two to add to query
-			if ($value.next() == false) {
+			if ($value == false) {
 				$equality = "<>";
 			}
+		} else if ($key[0] == 'v') {
+			$val = $value;
 
-			$query = $query . "WHERE " . $value . $equality . $value.next().next(); 
-		}
+			$query = $query . "WHERE " . $type . $equality . $val . ";"; 
+
 	}
-	
+}
 
 	$conn = connect();
 
