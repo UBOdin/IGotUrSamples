@@ -13,6 +13,9 @@ include "connect.php";
 	foreach ($_GET as $key => $value) {
 		//is it a t value?
 		if ($key[0] == 't') {
+			if ($key[1] > '1') {
+				$query = $query . " AND ";
+			}
 			$type = $value;
 		} else if ($key[0] == 'e') {
 			$equality = "=";
@@ -22,13 +25,18 @@ include "connect.php";
 				$equality = "<>";
 			}
 		} else if ($key[0] == 'v') {
+			if ($key[1] == '1') {
+				$query = $query . "WHERE ";
+			}
+
 			$val = $value;
 
-			$query = $query . "WHERE " . $type . $equality . $val . ";"; 
+			$query = $query . $type . $equality . $val; 
 
 	}
 }
 
+	$query = $query . ";";
 	$conn = connect();
 
 class x {

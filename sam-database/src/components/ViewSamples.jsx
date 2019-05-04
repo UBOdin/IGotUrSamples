@@ -72,8 +72,8 @@ class ViewSamples extends Component {
 				<hr />
 				<Row>
                     <Col align="right">
-                        {this.state.samples.length} samples || CONNECTION STATUS: {this.state.connectionstatus} || FILTER VALUES: {this.state.returnedFilterValues.toString()} MESSAGE: {this.state.connectMsg} 
-                    </Col>
+                        {this.state.samples.length} samples 
+					</Col>
                 </Row>
                 <CustomTable numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
             </div>
@@ -100,9 +100,6 @@ class ViewSamples extends Component {
 				}
 			}
 			
-//			for (var j = 0; j < this.state.samples[i].length; j++) {
-//				data = data + this.state.samples[i][this.state.headers.toLowerCase()] + ', ';
-//			}
 			data = data + '\n';
 		}
 
@@ -118,7 +115,6 @@ class ViewSamples extends Component {
 	}
 
 	processFilter() {
-		//TODO: finish this!
 		this.setState({ connectMsg: 'Reached processing method.'});
 
 		var getQuery = '';
@@ -154,7 +150,8 @@ class ViewSamples extends Component {
 		filterReq.onload = function (e) {
 			if (filterReq.readyState === 4 && filterReq.status === 200) {
 				console.log("All clear");
-				this.setState({ 
+				console.log(filterReq.responseText)
+				this.setState({
 					samples: JSON.parse(filterReq.responseText),
 					numRows: this.state.samples.length,
 					connectionstatus: filterReq.status,

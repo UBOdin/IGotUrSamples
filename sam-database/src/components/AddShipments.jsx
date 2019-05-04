@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
 import CustomAlertBanner from './CustomAlertBanner'
-import Search from './Search';
 import CustomTable from './CustomTable'; 
 import DatePicker from 'react-datepicker'
 
@@ -21,7 +20,7 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
 			samples: [],
-			samplesadded: [],
+			samplesadded: [''],
 			connectionMsg: '',
 			connectionstatus: -1,
         }
@@ -161,9 +160,7 @@ class AddShipments extends Component {
                 		</Row>
 					</div>
 
-					<hr />
 
-					<Search />
            
 		   			<Row>
                     	<Col>
@@ -176,7 +173,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
+                        	<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples}/>
                     	</Col>
                 	</Row> 
             	</div>

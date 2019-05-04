@@ -19,6 +19,7 @@ class CustomTable extends Component {
 		checkedRows[key] = value;
 
 		this.setState({ rowsCheckedState: checkedRows });
+		console.log("checkboxes should be: " + this.state.rowsCheckedState.toString());
 	}
 
 	drawRows(rows) {
@@ -26,15 +27,15 @@ class CustomTable extends Component {
 			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.rowsCheckedState[j]} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
         }
 	}	
+	
 	componentDidMount() {
-			if (this.state.rowsCheckedState.length === 0) {
-				var checked = [];
+				var checked = this.state.rowsCheckedState;
 				for (var i = 0; i < this.props.numRows; i++) {
-					checked.push({i:false});
+					checked[i] = false;
 				}
 
 				this.setState({ rowsCheckedState: checked });
-			}
+		console.log("[componentDidMount] checkboxes should be: " + this.state.rowsCheckedState.toString());
 	}
 		
     render() {
@@ -68,11 +69,12 @@ class CustomTable extends Component {
 	handleSelectAll(e) {
 		var checkArray = [];
 		for (var i = 0; i < this.props.numRows; i++) {
-			checkArray.push({i:e.target.checked});
+			checkArray[i] = e.target.checked;
 		}
 		this.setState({ 
 			allChecked: e.target.checked,
 			rowsCheckedState: checkArray });
+		console.log("checkboxes should be: " + this.state.rowsCheckedState.toString());
 	};
 }
 

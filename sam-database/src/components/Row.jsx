@@ -16,7 +16,7 @@ class Row extends Component {
 
 	handleChange(e) {
 		this.setState({ checked: e.target.checked });
-		this.props.checkCallback(this.props.key, this.state.checked);
+		this.props.checkCallback(this.props.number, e.target.checked);
 	}
 
     render() {
@@ -30,7 +30,7 @@ class Row extends Component {
         return (
             <tr>
                 <td>
-                    <Form.Check id={this.props.key}
+                    <Form.Check id={this.props.number}
 						checked={this.state.checked}
 						onChange={this.handleChange}/>
                 </td>
