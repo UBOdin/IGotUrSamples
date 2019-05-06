@@ -15,7 +15,7 @@ class AddSamples extends Component {
             hb: '',
             pb: '',
             density: '',
-            type: 'Blood',
+            type: '',
             aliquots: '',
 			initialstorageconditions: 'Room temperature',
             bht: false,
@@ -23,7 +23,7 @@ class AddSamples extends Component {
 			heparin: false,
 			mpa: false,
 			foil: false,
-			otherTreatments: '',
+			othertreatments: '',
 			consent: '',
 			alertVisibility: false,
             alertText: 'Please enter all required fields.',
@@ -101,7 +101,8 @@ class AddSamples extends Component {
                         		as="select"
                         		value={this.state.type}
                         		onChange={e => this.setState({type: e.target.value})}>
-                        			<option>Blood</option>
+                        			<option></option>
+									<option>Blood</option>
                         			<option>Blood Spot</option>
                         			<option>Dust</option> 
                         			<option>Hair</option>
@@ -140,7 +141,7 @@ class AddSamples extends Component {
                     		<InputGroup.Prepend>
                         		<InputGroup.Checkbox 
                             		id="foil"
-                            		value={this.state.foil}
+                            		checked={this.state.foil}
                             		onChange={e => this.setState({foil: e.target.value})}/>
                     		</InputGroup.Prepend>
                     		<Form.Control value="Foil wrapping?" />
@@ -182,8 +183,8 @@ class AddSamples extends Component {
                     			<InputGroup.Prepend>
                         			<InputGroup.Checkbox 
                             			id="bht"
-                            			value={this.state.bht}
-                            			onChange={e => this.setState({bdt: e.target.value})}/>
+                            			checked={this.state.bht}
+                            			onChange={e => this.setState({bht: e.target.value})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="BHT" />
                     		</InputGroup>
@@ -191,7 +192,7 @@ class AddSamples extends Component {
                     			<InputGroup.Prepend>
                         			<InputGroup.Checkbox 
                             			id="edta"
-                            			value={this.state.edta}
+                            			checked={this.state.edta}
                             			onChange={e => this.setState({edta: e.target.value})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="EDTA" />
@@ -200,7 +201,7 @@ class AddSamples extends Component {
                     			<InputGroup.Prepend>
                         			<InputGroup.Checkbox 
                             			id="heparin"
-                            			value={this.state.heparin}
+                            			checked={this.state.heparin}
                             			onChange={e => this.setState({heparin: e.target.value})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="Heparin" />
@@ -209,7 +210,7 @@ class AddSamples extends Component {
                     			<InputGroup.Prepend>
                         			<InputGroup.Checkbox 
                             			id="mpa"
-                            			value={this.state.mpa}
+                            			checked={this.state.mpa}
                             			onChange={e => this.setState({mpa: e.target.value})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="MPA" />
@@ -244,21 +245,24 @@ class AddSamples extends Component {
     }
 
     saveAndAddAnother = () => {
-        this.validateForms();
+        var errors = this.validateForms();
         
-        this.setState({
-            showAlert: true,
-            type: 'Blood',
-            aliquots: '',
-            initialstorageconditions: 'Room temperature',
-            bht: false,
-			edta: false,
-			heparin: false,
-			mpa: false,
-            foil: false,
-            otherTreatments: '',
-            alertVisibility: true,
-        });
+		if (!errors) {
+			this.send();
+			
+        	this.setState({
+            	showAlert: true,
+            	type: '',
+            	initialstorageconditions: 'Room temperature',
+            	bht: false,
+				edta: false,
+				heparin: false,
+				mpa: false,
+            	foil: false,
+            	othertreatments: '',
+            	alertVisibility: true,
+        	});
+		}
     }
 
     save = () => {
@@ -266,6 +270,8 @@ class AddSamples extends Component {
         var errors = this.validateForms();
 
         if (!errors) {
+			this.send();
+
             this.setState({
                 id: '',
                 eval: '',
@@ -273,7 +279,7 @@ class AddSamples extends Component {
                 hb: '',
                 pb: '',
                 density: '',
-                type: 'Blood',
+                type: '',
                 aliquots: '',
                 initialstorageconditions: 'Room temperature',
             	bht: false,
@@ -281,14 +287,17 @@ class AddSamples extends Component {
 				heparin: false,
 				mpa: false,
                 foil: false,
-                otherTreatments: '',
+                othertreatments: '',
 				consent: '',
             });
         }
     }
 
     validateForms = () => {
-        var numberFormat = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
+        const numberFormatOneDigit = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
+        const numberFormatTwoDigits = /^\(?([0-9]{2})\)?[.]?([0-9]{1})$/;
+        const numberFormatThreeDigits = /^\(?([0-9]{3})\)?[.]?([0-9]{1})$/;
+		const pbBelowDetectable = '<';
         var errorString = '';
         var errors = false;
         
@@ -297,12 +306,27 @@ class AddSamples extends Component {
         	errorString += 'Please enter all required fields. ';
         } 
 
-        if ((this.state.hb !== '' && !this.state.hb.match(numberFormat)) || (this.state.pb !== '' && !this.state.pb.match(numberFormat))) {
-            errors = true;
-        	errorString += 'Please enter Hb and Pb in the correct format (eg. 3.3).';
-        }
+		if (this.state.hb !== '' && 
+			(!this.state.hb.match(numberFormatOneDigit) &&
+			!this.state.hb.match(numberFormatTwoDigits))) {
+				errors = true;
+				errorString += 'Please enter correct format for Hb (typcal range between 7.0 - 19.0).';
+			}
 
-        if (errors) {
+		if (this.state.pb !== '' &&
+			(!this.state.pb.match(numberFormatOneDigit) &&
+			!this.state.pb.match(numberFormatTwoDigits) &&
+			!this.state.pb.match(numberFormatThreeDigits))) {
+				if (!this.state.pb[0] === pbBelowDetectable &&
+					(!this.state.pb.match(numberFormatOneDigit) &&
+					!this.state.pb.match(numberFormatTwoDigits) &&
+					!this.state.pb.match(numberFormatThreeDigits))) {
+						errors = true;
+						errorString += 'Please enter correct format for Pb (typically ranges from  <3.3 to 15).';
+				}
+		}
+					
+		if (errors) {
             this.setState({
                alertVariant: 'danger',
                alertText: errorString,
@@ -320,6 +344,61 @@ class AddSamples extends Component {
             return false;
         }
     }
+
+	getDateFormat = (date) => {
+		var formattedDate;
+		var yyyy = date.getFullYear();
+		var mm = String(date.getMonth() + 1).padStart(2, '0');
+		var dd = String(date.getDate()).padStart(2, '0');
+		formattedDate = yyyy + "-" + mm + "-" + dd;
+		return formattedDate;
+	}
+
+	send = () => {
+		var getQuery =
+			"id=" + this.state.id + "&" +
+			"eval=" + this.state.eval + "&" +
+			"date=" + this.getDateFormat(this.state.date) + "&" +
+			"hb=" + this.state.hb + "&" +
+			"pb=" + this.state.pb + "&" +
+			"density=" + this.state.density + "&" +
+			"type=" + this.state.type + "&" +
+			"aliquots=" + this.state.aliquots + "&" +
+			"initialstorageconditions=" + this.state.initialstorageconditions + "&" +
+			"bht=" + this.state.bht + "&" +
+			"edta=" + this.state.edta + "&" +
+			"heparin=" + this.state.heparin + "&" +
+			"mpa=" + this.state.mpa + "&" +
+			"foilwrapped=" + this.state.foil + "&" +
+			"othertreatments=" + this.state.othertreatments + "&" +
+			"unrestrictedconsent=" + this.state.consent;
+		
+		
+		var sendReq;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addsamples.php?" + getQuery;
+		console.log(getReq)
+		sendReq = new XMLHttpRequest();
+		sendReq.open(
+			"GET",
+			getReq,
+			true
+		);
+		sendReq.onload = function (e) {
+			if (sendReq.readyState === 4 && sendReq.status === 200) {
+				console.log("All clear");
+				console.log(sendReq.responseText);
+			} else {
+            	this.setState({
+               		alertVariant: 'danger',
+               		alertText: "There was an error connecting to the database: " + sendReq.statusText,
+               		alertVisibility: true,
+            	});
+				console.log(sendReq.responseText);
+			}
+		}
+
+		sendReq.send();	
+	};
 }
 
 export default AddSamples;

@@ -4,18 +4,10 @@ import { Form } from 'react-bootstrap';
 class Row extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			checked: false,
-		}
-		this.handleChange = this.handleChange.bind(this);
 	}
 
-	componentDidMount() {
-	this.setState({ checked: this.props.checked });
-	}
 
-	handleChange(e) {
-		this.setState({ checked: e.target.checked });
+	handleChange = (e) => {
 		this.props.checkCallback(this.props.number, e.target.checked);
 	}
 
@@ -30,12 +22,10 @@ class Row extends Component {
         return (
             <tr>
                 <td>
-                    <Form.Check id={this.props.number}
-						checked={this.state.checked}
-						onChange={this.handleChange}/>
+                    <Form.Check key={this.props.number} checked={this.props.checked} onChange={this.handleChange}/>
                 </td>
                 { cols }
-            </tr>
+			</tr>
         )
     };
 }

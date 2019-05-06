@@ -20,7 +20,7 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
 			samples: [],
-			samplesadded: [''],
+			samplesadded: ['','','','','','','',''],
 			connectionMsg: '',
 			connectionstatus: -1,
         }
@@ -173,7 +173,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples}/>
+                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
                     	</Col>
                 	</Row> 
             	</div>

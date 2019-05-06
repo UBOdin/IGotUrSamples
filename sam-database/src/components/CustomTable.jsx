@@ -24,7 +24,8 @@ class CustomTable extends Component {
 
 	drawRows(rows) {
 		for (var j = 0; j < this.props.numRows; j++) {
-			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.rowsCheckedState[j]} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
+		rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.rowsCheckedState[j]} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
+		console.log("this.state.rowsCheckedState[" + j + "] = " + this.state.rowsCheckedState[j]);
         }
 	}	
 	
@@ -67,7 +68,7 @@ class CustomTable extends Component {
     };
 
 	handleSelectAll(e) {
-		var checkArray = [];
+		var checkArray = this.state.rowsCheckedState;
 		for (var i = 0; i < this.props.numRows; i++) {
 			checkArray[i] = e.target.checked;
 		}
