@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- Meta data -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--Title of site -->
+  <title> Database Login </title>
+
+
+  <link rel="shortcut icon" type="image/icon" href="img/ub-icon.png"/>
+
+  <!--font-family-->
+	<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&amp;subset=devanagari,latin-ext" rel="stylesheet">
+  <link rel = "stylesheet" type = "text/css" href = "css/style.css">
+  <link rel= "stylesheet" type="text/css" href="css/bootstrap-min.css">
+
+  <!-- Load the Google Platform Library -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <!-- Specifying the app ID -->
+  <meta name="google-signin-client_id" content="393482720065-6n5k9gkfi36n2aq120apmla7it2g7hkf.apps.googleusercontent.com">
+
+  <!-- <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script> -->
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script src="https://apis.google.com/js/api:client.js"></script>
+  <script>
+  var googleUser = {};
+  var startApp = function() {
+    gapi.load('auth2', function(){
+      // Retrieve the singleton for the GoogleAuth library and set up the client.
+      auth2 = gapi.auth2.init({
+        client_id: '393482720065-6n5k9gkfi36n2aq120apmla7it2g7hkf.apps.googleusercontent.com',
+        cookiepolicy: 'single_host_origin',
+        // Request scopes in addition to 'profile' and 'email'
+        //scope: 'additional_scope'
+      });
+      attachSignin(document.getElementById('customBtn'));
+    });
+  };
+
+  function attachSignin(element) {
+    console.log(element.id);
+    auth2.attachClickHandler(element, {},
+        function(googleUser) {
+          document.getElementById('name').innerText = "Signed in: " +
+              googleUser.getBasicProfile().getName();
+        }, function(error) {
+          alert(JSON.stringify(error, undefined, 2));
+        });
+  }
+  </script>
+
+
+</head>
+
+<body>
+
+
+  <h2> Database Login </h2>
+
+  <section class="signin">
+
+
+
+    <div class="sign-content">
+
+      <div class="imgcontainer">
+        <img src="img/img1.png" alt = "Image" class = "avatar">
+      </div>
+
+      <div class = "form-information">
+        <label for="signin_form"> Email: </label>
+        <input type="text" class="form-control" id = "username_textbox" placeholder="Email">
+        <span id="username_span"> </span>
+      </div> <!-- Form information -->
+
+      <div class="form-information">
+        <label for="signin_form"> Password: </label>
+        <input type="text" class="form-control" id="password_textbox" placeholder="Password">
+        <span id="password_span"> </span>
+      </div> <!-- Form information -->
+
+      <input type="button" id="submit_button" value="Login"/>
+      <script>
+        $("#submit_button").click(function (e) {
+        if ($("#username_textbox").val() == "")
+        $("#username_span").text("Enter Username");
+        $("#username_span").text("");
+        if ($("#password_textbox").val() == "")
+        $("#password_span").text("Enter Password");
+        else
+        $("#password_span").text("");
+        if (($("#username_textbox").val() != "") && ($("#password_textbox").val() != ""))
+        $.ajax({
+          type: "POST",
+          url: "index.aspx/login",
+          contentType: "application/json; charset=utf-8",
+          data: '{"username":"' + $("#username_textbox").val() + '","password":"' + $("#password_textbox").val() + '"}',
+          dataType: "json",
+          success: function (result, status, xhr) {
+            if (result.d == "Success") {
+              $("#messageSpan").text("Login Successful, redirecting.");
+              setTimeout(function () { window.location = "profile.aspx"; }, 2000);
+            }
+            else
+            $("#messageSpan").text("Login failed, Please try again.");
+          },
+          error: function (xhr, status, error) {
+            $("#dbData").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+          }
+        });
+      });
+      $(document).ajaxStart(function () {
+        $("#loadingImg").show();
+      });
+      $(document).ajaxStop(function () {
+        $("#loadingImg").hide();
+      });
+      </script>
+
+      <h1 id="welcome" runat = "server"> </h1>
+      <script>
+        if (!IsPostBack){
+          welcome.innerHTML = "Welcome"
+        }
+      </script>
+
+</body>
+</html>
