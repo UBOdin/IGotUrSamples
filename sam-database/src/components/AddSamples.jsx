@@ -17,7 +17,7 @@ class AddSamples extends Component {
             density: '',
             type: '',
             aliquots: '',
-			initialstorageconditions: 'Room temperature',
+			initialstorageconditions: '',
             bht: false,
 			edta: false,
 			heparin: false,
@@ -131,7 +131,8 @@ class AddSamples extends Component {
                         		as="select"
                         		value={this.state.initialstorageconditions}
                         		onChange={e => this.setState({initialstorageconditions: e.target.value})}>
-                        			<option>Room temperature</option>
+                        			<option></option>
+                                    <option>Room temperature</option>
                         			<option>4° C</option>
                         			<option>-20° C</option>
                         			<option>-80° C</option>
@@ -253,13 +254,14 @@ class AddSamples extends Component {
         	this.setState({
             	showAlert: true,
             	type: '',
-            	initialstorageconditions: 'Room temperature',
+            	initialstorageconditions: '',
             	bht: false,
 				edta: false,
 				heparin: false,
 				mpa: false,
             	foil: false,
             	othertreatments: '',
+                aliquots: '',
             	alertVisibility: true,
         	});
 		}
@@ -275,13 +277,13 @@ class AddSamples extends Component {
             this.setState({
                 id: '',
                 eval: '',
-                date: '',
+                date: new Date(),
                 hb: '',
                 pb: '',
                 density: '',
                 type: '',
                 aliquots: '',
-                initialstorageconditions: 'Room temperature',
+                initialstorageconditions: '',
             	bht: false,
 				edta: false,
 				heparin: false,

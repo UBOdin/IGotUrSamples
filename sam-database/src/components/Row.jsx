@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 
 class Row extends Component {
-	constructor(props) {
-		super(props);
-	}
-
 
 	handleChange = (e) => {
 		this.props.checkCallback(this.props.number, e.target.checked);
