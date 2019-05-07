@@ -1,0 +1,174 @@
+form {
+  border: 3px solid #f1f1f1;
+}
+
+.signin{
+    background: #f4f6fa;
+    padding-top: 25px;
+    padding-bottom: 25px;
+
+}
+
+.sign-content {
+    max-width: 620px;
+    margin: 0 auto;
+}
+.sign-content h2{
+    color: #464d5f;
+    font-size: 30px;
+    text-align: center;
+    margin-bottom: 54px;
+}
+
+/*.signin-form  .form-control*/
+.form-information  .form-control {
+    background: transparent;
+    border: transparent;
+    border-bottom: 1px solid #bcbfc9;
+    border-radius: 0;
+    outline: 0!important;
+    box-shadow: none;
+    padding: 5px 5px 5px 5px;
+    height: 46px;
+    -webkit-transition: linear .5s;
+    -moz-transition: linear .5s;
+    -ms-transition: linear .5s;
+    -o-transition: linear .5s;
+    transition: linear .5s;
+}
+
+.form-information  .form-control:hover,.signin-form  .form-control:focus{
+    border-bottom: 1px solid #474d5b;
+    color:#474d5b;
+}
+
+.form-information label{
+    position: relative;
+    top: 5px;
+    color: #474d5b;
+    font-size: 25px;
+    font-weight: 500;
+    text-transform: capitalize;
+    margin-bottom: 0px;
+    margin-right: auto;
+    padding: 10px 5px 5px 5px;
+}
+
+.form-information .signin-form input[type="email"],.signin-form input[type="password"]{
+    color:#474d5b;
+    font-size:16px;
+    font-weight: 400;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-information .signin-form input[type = "text"]{
+  font-size:16px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+}
+
+/*input[type = text], input[type = password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8 px, 0;
+  display: inline-block;
+  border: 1px, solid #ccc;
+  box-sizing: border-box;
+}*/
+
+button {
+  background-color: #042CC0;
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+span.label {
+  font-family: serif;
+  font-weight: normal;
+}
+
+span.label {
+  font-family: serif;
+  font-weight: normal;
+}
+
+customBtn {
+  display: inline-block;
+  background: white;
+  color: #444;
+  width: 190px;
+  border-radius: 5px;
+  border: thin solid #888;
+  box-shadow: 1px 1px 1px grey;
+  white-space: nowrap;
+  align-items: center;
+}
+
+customBtn:hover {
+  cursor: pointer;
+}
+
+span.buttonText {
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 42px;
+  padding-right: 42px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+}
+
+/*.cancelbtn {
+  width: auto;
+  padding: 10px 18px;
+  background-color: #f44336;
+}*/
+
+.imgcontainer {
+  text-align: center;
+  margin: 10px 0 10px 0;
+}
+
+img.avatar {
+  width: 50%;
+  height: 50%;
+  padding-bottom: 25px;
+}
+
+h2 {
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.container {
+  padding: 16px;
+}
+
+span.psw {
+  float: right;
+  padding-top: 16px;
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+  span.psw {
+     display: block;
+     float: none;
+  }
+  .cancelbtn {
+     width: 100%;
+  }
+}
