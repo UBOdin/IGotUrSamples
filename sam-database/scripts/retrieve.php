@@ -2,7 +2,7 @@
 
 ini_set("display_errors",1);
 include "connect.php";
-	$table = "Test";
+	$table = "Samples";
 
 	$query = "SELECT * FROM ";
 	$query = $query . $table . " ";

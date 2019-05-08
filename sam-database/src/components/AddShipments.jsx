@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
+import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl, Modal } from 'react-bootstrap';
 import CustomAlertBanner from './CustomAlertBanner'
 import CustomTable from './CustomTable'; 
 import DatePicker from 'react-datepicker'
@@ -23,10 +23,18 @@ class AddShipments extends Component {
 			samplesadded: ['','','','','','','',''],
 			connectionMsg: '',
 			connectionstatus: -1,
-        }
+			aliquotSelectorsForModal: [],
+			showModal: false,
+			checkedRowsSamples: [],
+			checkedRowsShipment: [],
+			samplesToSelectAliquotsFrom: [],
+			checkedRowsInShipment: [],
+			numberAliquotsSelectedForShipment: [],
+	}
     	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
-    }
+		this.selectAliquotsForShipment = this.selectAliquotsForShipment.bind(this);
+	}
 	
 	handleChange(date) {
 		this.setState({
@@ -164,27 +172,118 @@ class AddShipments extends Component {
            
 		   			<Row>
                     	<Col>
-                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples}/>
+                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples} getRows={this.getCheckedStateFromSamplesTable}/>
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
-                        		<Button as="input" value=">>" variant="dark" onClick={this.moveToShipment}></Button><p/>
+                        		<Button as="input" value=">>" variant="dark" onClick={this.selectAliquotsForShipment}></Button><p/>
                         		<Button as="input" value="<<" variant="dark" onClick={this.removeFromShipment}></Button> 
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesadded}/>
+                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={this.state.samplesadded}/>
                     	</Col>
                 	</Row> 
+					<Modal show={this.state.showModal}>
+						<Modal.Header>
+							<Modal.Title>Add samples to shipment</Modal.Title>
+						</Modal.Header>
+						<Modal.Body>
+						<p>Click 'Save' to add all aliquots for each sample you selected to your shipment. Or, specify the number of available aliquots to go to the shipment below.</p>
+						{this.state.aliquotSelectorsForModal}	
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="secondary" onClick={this.handleCloseModal}>Cancel</Button>
+							<Button variant="primary" onClick={this.moveAliquotsToShipment}>Save</Button>
+						</Modal.Footer>
+					</Modal>
             	</div>
-        	);
+
+			);
     	}
 
-        moveToShipment = () => {
-            //new modal
-            //for each selected sample, select number of aliquots
-            //create new records in samplesadded
-        }
+		handleCloseModal = () => {
+			this.setState({ showModal: false });
+		}
+
+		getCheckedStateFromSamplesTable = (checkedRows) => {
+			this.setState({ checkedRowsSamples: checkedRows });
+		}
+
+		numberOfAliquotsSelectedForShipment = (key, number) => {
+			var numberAliquots = this.state.numberAliquotsSelectedForShipment;
+			numberAliquots[key] = number;
+
+			this.setState({ numberAliquotsSelectedForShipment: numberAliquots });
+			console.log("Sample #: " + key + " changed to " + number + " aliquots.");
+		}
+
+		getCheckedStateFromShipmentTable = (checkedRows) => {
+			this.setState({ checkedRowsShipment: checkedRows });
+		}
+
+		moveAliquotsToShipment = () => {
+			console.log("number of aliquots selected for shipment: " + this.state.numberAliquotsSelectedForShipment);
+
+			//Get aliquots for each sample allocated for shipment
+			//REFACTOR: figure out how to use javascript array methods to reduce the n^2 time complexity here
+			for (var i = 0; i < this.state.aliquotSelectorsForModal.length; i++) {
+				if (this.state.numberAliquotsSelectedForShipment[i] === this.state.samplesToSelectAliquotsFrom[i]["aliquots"]) {
+					for (var j = 0; j < this.state.samples.length; j++) {
+						if (this.state.samples[j]["key_internal"] === this.state.samplesToSelectAliquotsFrom[i]["key_intenal"]) {
+							//REFACTOR: this is anti-pattern!
+							this.state.samples.remove(this.state.samples[j]);
+							console.log("Correctly identifies a matching record with the same number of aliquots.");
+						} else {
+							console.log("Samples number " + j + "is not the sample you're looking for!");
+						}
+					}
+				} else {
+					console.log("didn't find a sample with same number of aliquots!");
+				}
+			}
+
+			this.setState({ 
+				showModal: false,
+				samplesToSelectAliquotsFrom: [],
+				numberAlquotsSelectedForShipment: [],
+			});
+			//If aliquots to ship matches total aliquots, remove record from this.state.samples
+			//Else, decrement aliquots in samples by number of aliquots in shipment
+			//In either case, add the samples to the shipment array/table
+			
+		}
+
+        selectAliquotsForShipment() {
+	
+			var checkedRows = this.state.checkedRowsSamples;
+			console.log("checkedRows: " + checkedRows);
+			
+			var toAliquotForShipment = [];
+			
+			for (var i = 0; i < this.state.samples.length; i++) {
+				if (checkedRows[i]) {
+					toAliquotForShipment.push(this.state.samples[i]);
+				}
+			}
+			console.log("Aliquots to select: " + toAliquotForShipment.toString());
+
+			var aliquotSelectors = [];
+
+			for (var j = 0; j < toAliquotForShipment.length; j++) {
+				aliquotSelectors.push(<AliquotSelector key={j} number={j} data={toAliquotForShipment[j]} aliquotsCallback={this.numberOfAliquotsSelectedForShipment}/>);
+			}
+			console.log("length of aliquots object is: " + toAliquotForShipment.length);
+
+			this.setState({
+				aliquotSelectorsForModal: aliquotSelectors,
+				samplesToSelectAliquotsFrom: toAliquotForShipment,
+				showModal: true,
+			});
+			console.log("aliquotSelectors (local var): " + aliquotSelectors);
+			console.log("aliquotSelectorsForModal (state): " + this.state.aliquotSelectorsForModal);
+			console.log("samplesToSelectAliquotsFrom: " + this.state.samplesToSelectAliquotsFrom);	
+        };
 
         removeFromShipment = () => {
             //new modal
@@ -239,6 +338,49 @@ class AddShipments extends Component {
 
 			return false;
 		}
+	}
+}
+
+
+class AliquotSelector extends Component {
+	constructor(props) {
+    	super(props);
+        this.state = {
+			selected: this.props.data["aliquots"],
+		}
+	}
+	
+	handleChange = (e) => {
+		this.props.aliquotsCallback(this.props.number, e.target.value);
+		this.setState({selected: e.target.value});
+	}
+
+	componentDidMount() {
+		this.props.aliquotsCallback(this.props.number, this.state.selected);
+	}
+
+	render() {
+		var options = [];
+
+		for (var i = this.props.data["aliquots"]; i > 0; i--) {
+			options.push(<option>{i}</option>);
+		}
+
+		options.push(<option>Remove</option>);
+
+		return (
+			<div>
+				<p>Sample #{this.props.number}: ID {this.props.data["id"]}, Eval {this.props.data["eval"]}, Type: {this.props.data["type"]}}</p>
+				<br/>Number of aliquots to add to shipment:
+                <Form.Control 
+                	id="storageconditions" 
+                    as="select"
+                    value={this.state.selected}
+                    onChange={this.handleChange}>
+   	             	{options}
+				</Form.Control>
+			</div>
+		);
 	}
 }
 

@@ -1,3 +1,5 @@
+//TODO: implemented this.props.getCheckedStateFromTable
+
 import React, { Component } from 'react';
 import { Table, Form } from 'react-bootstrap';
 import Row from './Row';
@@ -10,15 +12,18 @@ class CustomTable extends Component {
 			rows: [],
 			rowsCheckedState: [],
 		}
+
 		this.handleSelectAll = this.handleSelectAll.bind(this);
 		this.drawRows = this.drawRows.bind(this);
 	}
+
 
 	isChecked = (key, value) => {
 		var checkedRows = this.state.rowsCheckedState;
 		checkedRows[key] = value;
 
 		this.setState({ rowsCheckedState: checkedRows });
+		this.props.getRows(this.state.rowsCheckedState);
 		console.log("checkboxes should be: " + this.state.rowsCheckedState.toString());
 	}
 
@@ -36,6 +41,7 @@ class CustomTable extends Component {
 				}
 
 				this.setState({ rowsCheckedState: checked });
+				this.props.getRows(this.state.rowsCheckedState);
 		console.log("[componentDidMount] checkboxes should be: " + this.state.rowsCheckedState.toString());
 	}
 		

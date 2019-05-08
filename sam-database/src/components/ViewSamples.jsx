@@ -29,6 +29,10 @@ class ViewSamples extends Component {
 		console.log(this.state.returnedFilterValues.toString());
 	};
 
+	//This is a placeholder function so the table component doesn't throw an error when there is no function for the getRows prop. In a later refactoring, this should go away and instead the CustomTable component should set an empty function by default.
+	getRowsDefault = () => {
+	}
+
 	componentDidMount() {
 		var request;
 
@@ -75,7 +79,7 @@ class ViewSamples extends Component {
                         {this.state.samples.length} samples 
 					</Col>
                 </Row>
-                <CustomTable numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
+                <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
             </div>
     	)
 	};

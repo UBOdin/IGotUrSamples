@@ -3,7 +3,7 @@
 ini_set("display_errors",1);
 include "connect.php";
 	$query = "SELECT * FROM ";
-	$query = $query . "TestShipments";
+	$query = $query . "Shipments";
 
 	$conn = connect();
 

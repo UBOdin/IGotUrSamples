@@ -9,7 +9,7 @@ include "connect.php";
 		$columns_string = "(";
 		$values_string = "(";
 		$db = "eehuruguayresearch_db";
-		$table = "Test";
+		$table = "Samples";
 
 		foreach ($_GET as $column => $value) {
 			$columns_string = $columns_string . "`" . $column . "`" . ', ';

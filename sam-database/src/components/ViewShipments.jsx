@@ -16,6 +16,9 @@ class ViewShipments extends Component {
     	}
 	}
 
+	//This is a placeholder function so the table component doesn't throw an error when there is no function for the getRows prop. In a later refactoring, this should go away and instead the CustomTable component should set an empty function by default.
+	getRowsDefault = () => {
+	}
 
 	componentDidMount() {
 		var request;
@@ -66,7 +69,7 @@ class ViewShipments extends Component {
 
 				<hr />
                 
-				<CustomTable numCols={4} numRows={this.state.shipments.length} cols={['Date','From','To','Samples']} toPopulateWith={this.state.shipments} />
+				<CustomTable getRows={this.getRowsDefault} numCols={4} numRows={this.state.shipments.length} cols={['Date','From','To','Samples']} toPopulateWith={this.state.shipments} />
             
 			</div>
         )                
