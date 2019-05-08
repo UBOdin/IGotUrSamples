@@ -224,29 +224,35 @@ class AddShipments extends Component {
 
 		moveAliquotsToShipment = () => {
 			console.log("number of aliquots selected for shipment: " + this.state.numberAliquotsSelectedForShipment);
-
+			var samples = this.state.samples;
+			console.log(samples);
 			//Get aliquots for each sample allocated for shipment
 			//REFACTOR: figure out how to use javascript array methods to reduce the n^2 time complexity here
 			for (var i = 0; i < this.state.aliquotSelectorsForModal.length; i++) {
+				console.log("Comparing " + this.state.numberAliquotsSelectedForShipment[i] + " to " + this.state.samplesToSelectAliquotsFrom[i]["aliquots"]);
 				if (this.state.numberAliquotsSelectedForShipment[i] === this.state.samplesToSelectAliquotsFrom[i]["aliquots"]) {
-					for (var j = 0; j < this.state.samples.length; j++) {
-						if (this.state.samples[j]["key_internal"] === this.state.samplesToSelectAliquotsFrom[i]["key_intenal"]) {
+					for (var j = 0; j < samples.length; j++) {
+						console.log("Comparing " + samples[j]["key_internal"] + " to " + this.state.samplesToSelectAliquotsFrom[i]["key_internal"]);
+						if (samples[j]["key_internal"] == this.state.samplesToSelectAliquotsFrom[i]["key_intenal"]) {
 							//REFACTOR: this is anti-pattern!
-							this.state.samples.remove(this.state.samples[j]);
+							samples.splice(j, 1);
 							console.log("Correctly identifies a matching record with the same number of aliquots.");
 						} else {
 							console.log("Samples number " + j + "is not the sample you're looking for!");
 						}
 					}
 				} else {
+					//TODO: decrement aliquots for samples that aren't going to shipments entirely
 					console.log("didn't find a sample with same number of aliquots!");
 				}
+				//TODO: Fix this! Don't alter the state directly! (it's undefined)
+				this.state.samplesAdded.push(samples[j]);
 			}
-
 			this.setState({ 
 				showModal: false,
 				samplesToSelectAliquotsFrom: [],
 				numberAlquotsSelectedForShipment: [],
+				samples: samples,
 			});
 			//If aliquots to ship matches total aliquots, remove record from this.state.samples
 			//Else, decrement aliquots in samples by number of aliquots in shipment
