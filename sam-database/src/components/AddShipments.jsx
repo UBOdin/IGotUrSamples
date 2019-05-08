@@ -168,8 +168,8 @@ class AddShipments extends Component {
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
-                        		<Button as="input" value=">>" variant="dark"></Button><p/>
-                        		<Button as="input" value="<<" variant="dark"></Button> 
+                        		<Button as="input" value=">>" variant="dark" onClick={this.moveToShipment}></Button><p/>
+                        		<Button as="input" value="<<" variant="dark" onClick={this.removeFromShipment}></Button> 
                   			</div>
 		    			</Col>
                     	<Col>
@@ -180,12 +180,28 @@ class AddShipments extends Component {
         	);
     	}
 
+        moveToShipment = () => {
+            //new modal
+            //for each selected sample, select number of aliquots
+            //create new records in samplesadded
+        }
+
+        removeFromShipment = () => {
+            //new modal
+            //for each selected sample, select number of aliquots
+            //remove record from samplesadded
+        }
+
     	save = () => {
         	//TODO: Send data via POST to database
 			var errors = this.validateForms();
 
 			if (!errors) {
-				this.setState({
+                //add sample records to shipment database and mark appropriate
+                //parent and child id
+                //
+                //add new shipment record to database
+                this.setState({
 					date: '',
 					to: '',
 					numbersamples: '0',
