@@ -4,7 +4,6 @@ import CustomAlertBanner from './CustomAlertBanner'
 import CustomTable from './CustomTable'; 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-var _ = require('lodash');
 
 class AddShipments extends Component {
 	constructor(props) {
@@ -20,7 +19,8 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
 			samples: [],
-			samplesadded: [],
+			samplesadded: ['','','','','','','',''],
+			minimumRowsInTable: 8,
 			connectionMsg: '',
 			connectionstatus: -1,
 			aliquotSelectorsForModal: [],
@@ -226,7 +226,7 @@ class AddShipments extends Component {
 			console.log("number of aliquots selected for shipment: " + this.state.numberAliquotsSelectedForShipment);
 			var samples = this.state.samples;
             var indicesToSplice = [];
-
+			var samplesToAdd = [];
 			console.log(samples);
 			//Get aliquots for each sample allocated for shipment
 			//REFACTOR: figure out how to use javascript array methods to reduce the n^2 time complexity here
@@ -242,7 +242,7 @@ class AddShipments extends Component {
 
                         if (samplesKey === aliquotsKey) {
 							indicesToSplice.push(j);
-							this.state.samplesadded.push(samples[j]);
+							samplesToAdd.push(samples[j]);
                             console.log("Correctly identifies a matching record with the same number of aliquots.");
 						} else {
 							console.log("Samples number " + j + "is not the sample you're looking for!");
@@ -255,55 +255,106 @@ class AddShipments extends Component {
 			    
             }
 			
-            for (var index in indicesToSplice) {
-                samples.splice(index, 1);
-            }
+			//remove selected samples from the left table, from the highest index down to avoid slipping the values around
+			for (var index = indicesToSplice.length; index > 0; index--) {
+				samples.splice(indicesToSplice[index-1], 1);
+			}
+			
+			var checkedSamples = this.state.checkedRowsSamples;
+			for (var check in checkedSamples) {
+				check = false;
+			}
 
             this.setState({ 
 				showModal: false,
 				samplesToSelectAliquotsFrom: [],
 				numberAlquotsSelectedForShipment: [],
 				samples: samples,
+				samplesadded: samplesToAdd,
+				checkedRowsSamples: check,
 			});
-			//If aliquots to ship matches total aliquots, remove record from this.state.samples
-			//Else, decrement aliquots in samples by number of aliquots in shipment
-			//In either case, add the samples to the shipment array/table
 			
 		}
 
         selectAliquotsForShipment() {
-	
-			var checkedRows = this.state.checkedRowsSamples;
-			console.log("checkedRows: " + checkedRows);
-			
-			var toAliquotForShipment = [];
-			
-			for (var i = 0; i < this.state.samples.length; i++) {
-				if (checkedRows[i]) {
-					toAliquotForShipment.push(this.state.samples[i]);
+			var areChecks = false;
+			for (var checked in this.state.checkedRowsSamples) {
+				if (checked) {
+					areChecks = true;
 				}
 			}
-			console.log("Aliquots to select: " + toAliquotForShipment.toString());
 
-			var aliquotSelectors = [];
+			if (areChecks) {
+				var checkedRows = this.state.checkedRowsSamples;
+				console.log("checkedRows: " + checkedRows);
+			
+				var toAliquotForShipment = [];
+			
+				for (var i = 0; i < this.state.samples.length; i++) {
+					if (checkedRows[i]) {
+						toAliquotForShipment.push(this.state.samples[i]);
+					}
+				}
+				console.log("Aliquots to select: " + toAliquotForShipment.toString());
 
-			for (var j = 0; j < toAliquotForShipment.length; j++) {
-				aliquotSelectors.push(<AliquotSelector key={j} number={j} data={toAliquotForShipment[j]} aliquotsCallback={this.numberOfAliquotsSelectedForShipment}/>);
-			}
-			console.log("length of aliquots object is: " + toAliquotForShipment.length);
+				var aliquotSelectors = [];
 
-			this.setState({
-				aliquotSelectorsForModal: aliquotSelectors,
-				samplesToSelectAliquotsFrom: toAliquotForShipment,
-				showModal: true,
-			});
-			console.log("aliquotSelectors (local var): " + aliquotSelectors);
-			console.log("aliquotSelectorsForModal (state): " + this.state.aliquotSelectorsForModal);
-			console.log("samplesToSelectAliquotsFrom: " + this.state.samplesToSelectAliquotsFrom);	
-        };
+				for (var j = 0; j < toAliquotForShipment.length; j++) {
+					aliquotSelectors.push(<AliquotSelector key={j} number={j} data={toAliquotForShipment[j]} aliquotsCallback={this.numberOfAliquotsSelectedForShipment}/>);
+				}
+				console.log("length of aliquots object is: " + toAliquotForShipment.length);
+
+				this.setState({
+					aliquotSelectorsForModal: aliquotSelectors,
+					samplesToSelectAliquotsFrom: toAliquotForShipment,
+					showModal: true,
+				});
+				console.log("aliquotSelectors (local var): " + aliquotSelectors);
+				console.log("aliquotSelectorsForModal (state): " + this.state.aliquotSelectorsForModal);
+				console.log("samplesToSelectAliquotsFrom: " + this.state.samplesToSelectAliquotsFrom);	
+        	}
+		};
 
         removeFromShipment = () => {
-            //new modal
+			var areChecks = false;
+			for (var checked in this.state.checkedRowsShipment) {
+				if (checked) {
+					areChecks = true;
+				}
+			}
+
+			if (areChecks) {
+				var indicesToSplice = [];
+
+				//REFACTOR: there's a wayyy more cost-effective way to do this. As it is, it re-renders the tables for every checked item. Why not queue them in an array and update them all at once?
+				for (var i = 0; i < this.state.samplesadded.length; i++) {
+					if (this.state.checkedRowsShipment[i]) {
+						indicesToSplice.push(i);
+						var samplesUpdated = [];
+						for (var j = 0; j < this.state.samples.length; j++) {
+							var keyFromShipment = this.state.samplesadded[i]["key_internal"];
+							var keyInSamples = this.state.samples[j]["key_internal"];
+							//REFACTOR: you could just include the added sample in the if statement, and have the duplicate line fire afterward regardless.
+							if (keyFromShipment < keyInSamples) {
+								samplesUpdated.push(this.state.samplesadded[i]);
+								while (j !== this.state.samples.length) {
+									samplesUpdated.push(this.state.samples[j]);
+									j++;
+								}
+								break;
+							} else {
+								samplesUpdated.push(this.state.samples[j]);
+							}
+						}
+					this.setState({ samples: samplesUpdated });
+					}
+				}
+
+				var updatedShipment = this.state.samplesadded;
+				for (var i = indicesToSplice.length; i > 0; i--) {
+					updatedShipment.splice(indicesToSplice[i],1);
+				}
+			}
             //for each selected sample, select number of aliquots
             //remove record from samplesadded
         }
