@@ -544,6 +544,54 @@ class AliquotSelector extends Component {
 			</div>
 		);
 	}
+	
+	send = () => {
+		var getQuery =
+			//TODO: Replace with shipment-specific queries
+//			"id=" + this.state.id + "&" +
+//			"eval=" + this.state.eval + "&" +
+//			"date=" + this.getDateFormat(this.state.date) + "&" +
+//			"hb=" + this.state.hb + "&" +
+//			"pb=" + this.state.pb + "&" +
+//			"density=" + this.state.density + "&" +
+//			"type=" + this.state.type + "&" +
+//			"aliquots=" + this.state.aliquots + "&" +
+//			"initialstorageconditions=" + this.state.initialstorageconditions + "&" +
+//			"bht=" + this.state.bht + "&" +
+//			"edta=" + this.state.edta + "&" +
+//			"heparin=" + this.state.heparin + "&" +
+//			"mpa=" + this.state.mpa + "&" +
+//			"foilwrapped=" + this.state.foil + "&" +
+//			"othertreatments=" + this.state.othertreatments + "&" +
+//			"unrestrictedconsent=" + this.state.consent;		
+		
+		var sendReq;
+		//TODO: replace with correct php script
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addsamples.php?" + getQuery;
+		console.log(getReq)
+		sendReq = new XMLHttpRequest();
+		sendReq.open(
+			"GET",
+			getReq,
+			true
+		);
+		sendReq.onload = function (e) {
+			if (sendReq.readyState === 4 && sendReq.status === 200) {
+				console.log("All clear");
+				console.log(sendReq.responseText);
+			} else {
+            	this.setState({
+               		alertVariant: 'danger',
+               		alertText: "There was an error connecting to the database: " + sendReq.statusText,
+               		alertVisibility: true,
+            	});
+				console.log(sendReq.responseText);
+			}
+		}
+
+		sendReq.send();	
+	};
+}
 }
 
 export default AddShipments;
