@@ -4,6 +4,7 @@ import CustomAlertBanner from './CustomAlertBanner'
 import CustomTable from './CustomTable'; 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import Filter from './Filter';
 
 class AddShipments extends Component {
 	constructor(props) {
@@ -30,11 +31,87 @@ class AddShipments extends Component {
 			samplesToSelectAliquotsFrom: [],
 			checkedRowsInShipment: [],
 			numberAliquotsSelectedForShipment: [],
+			resetChecksSamples: false,
+			resetChecksShipment: false,
+			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
+			returnedFilterValues: [],
+			connectMsg: '',
 	}
     	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
+		this.removeFromShipment = this.removeFromShipment.bind(this);
 		this.selectAliquotsForShipment = this.selectAliquotsForShipment.bind(this);
+		this.addFilter = this.addFilter.bind(this);
+		this.processFilter = this.processFilter.bind(this);
 	}
+
+	getFilterValues = (type, equality, value, key) => {
+		var filterVals = this.state.returnedFilterValues;
+		filterVals[key] = [type,equality,value];
+
+		this.setState({ returnedFilterValues: filterVals});
+		console.log(this.state.returnedFilterValues.toString());
+	};
+
+	addFilter() {
+		var newFilterArray = this.state.filters.concat(<Filter key={this.state.filters.length + 1} number={this.state.filters.length + 1} retVals={this.getFilterValues}/>);
+		this.setState({ filters: newFilterArray });
+	};
+
+
+	processFilter() {
+		this.setState({ connectMsg: 'Reached processing method.'});
+
+		var getQuery = '';
+		//for each filter in the array, find the corresponding keyi
+		for (var i = 1; i <= this.state.filters.length; i++) {
+
+			if (i !== 1) {
+				getQuery = getQuery + '&';
+			}
+
+			//if type's not null (should never be!)
+			//if value's not null
+			if (this.state.returnedFilterValues[i][0] !== '' &&
+				this.state.returnedFilterValues[i][2] !== '') {
+
+				getQuery = getQuery 
+					+ 't' + i + '=' + this.state.returnedFilterValues[i][0] + '&'
+					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1] + '&'
+					+ 'v' + i + '=' + this.state.returnedFilterValues[i][2];
+			}
+		}
+				//make SQL query and retrieve all samples that match (or don't match?) filter
+		this.setState({ connectMsg: 'Created GET query' });
+		var filterReq;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery;
+		console.log(getReq)
+		filterReq = new XMLHttpRequest();
+		filterReq.open(
+			"GET",
+			getReq,
+			true
+		);
+		filterReq.onload = function (e) {
+			if (filterReq.readyState === 4 && filterReq.status === 200) {
+				console.log("All clear");
+				console.log(filterReq.responseText)
+				this.setState({
+					samples: JSON.parse(filterReq.responseText),
+					connectionstatus: filterReq.status,
+					connectMsg: filterReq.responseText
+				});
+			} else {
+				console.error(filterReq.statusText);
+				this.setState({
+					connectMsg: filterReq.responseText,
+					connectionstatus: filterReq.status,
+				});
+			}
+		}.bind(this);
+		this.setState({ connectMsg: 'About to send GET request' });
+		filterReq.send();	
+		}
 	
 	handleChange(date) {
 		this.setState({
@@ -73,7 +150,15 @@ class AddShipments extends Component {
 	}
 
     render() {
-        return (
+
+		this.state.samples.sort(function(a, b) {
+			var keyA = a["key_internal"];
+			var keyB = b["key_internal"];
+
+			return keyB - keyA;
+		});
+		
+		return (
             <div>
                 {this.state.alertVisibility &&
                 <CustomAlertBanner variant={this.state.alertVariant} text={this.state.alertText}/>
@@ -154,9 +239,15 @@ class AddShipments extends Component {
 					<p />
 
 					<div>
+					<hr />
+                {this.state.filters}
+				<hr />
                 		<Row>
                     		<Col>
                         		<ButtonGroup>
+				<Button variant="dark" size="lg" onClick={this.addFilter}>Add another filter</Button>
+				<Button variant="dark" size="lg" onClick={this.processFilter}>Filter</Button>
+                <Button variant="dark" size="lg" onClick={this.exportToCSV}>Export</Button>
                             		<Button variant="dark" size="lg" onClick={this.save}>
 										Save
 									</Button>
@@ -172,7 +263,7 @@ class AddShipments extends Component {
            
 		   			<Row>
                     	<Col>
-                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples} getRows={this.getCheckedStateFromSamplesTable}/>
+                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples} getRows={this.getCheckedStateFromSamplesTable} reset={this.state.resetChecksSamples}/>
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
@@ -181,7 +272,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={this.state.samplesadded}/>
+                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={this.state.samplesadded} reset={this.state.resetChecksShipment}/>
                     	</Col>
                 	</Row> 
 					<Modal show={this.state.showModal}>
@@ -207,7 +298,10 @@ class AddShipments extends Component {
 		}
 
 		getCheckedStateFromSamplesTable = (checkedRows) => {
-			this.setState({ checkedRowsSamples: checkedRows });
+			this.setState({ 
+				checkedRowsSamples: checkedRows,
+				resetChecksSamples: false,
+			});
 		}
 
 		numberOfAliquotsSelectedForShipment = (key, number) => {
@@ -219,7 +313,10 @@ class AddShipments extends Component {
 		}
 
 		getCheckedStateFromShipmentTable = (checkedRows) => {
-			this.setState({ checkedRowsShipment: checkedRows });
+			this.setState({ 
+				checkedRowsShipment: checkedRows,
+				resetChecksShipment: false,
+			});
 		}
 
 		moveAliquotsToShipment = () => {
@@ -272,6 +369,7 @@ class AddShipments extends Component {
 				samples: samples,
 				samplesadded: samplesToAdd,
 				checkedRowsSamples: check,
+				resetChecksSamples: true,
 			});
 			
 		}
@@ -315,7 +413,7 @@ class AddShipments extends Component {
         	}
 		};
 
-        removeFromShipment = () => {
+        removeFromShipment() {
 			var areChecks = false;
 			for (var checked in this.state.checkedRowsShipment) {
 				if (checked) {
@@ -325,38 +423,34 @@ class AddShipments extends Component {
 
 			if (areChecks) {
 				var indicesToSplice = [];
-
+				var samplesUpdated = this.state.samples;
+				var shipmentUpdated = this.state.samplesadded;
 				//REFACTOR: there's a wayyy more cost-effective way to do this. As it is, it re-renders the tables for every checked item. Why not queue them in an array and update them all at once?
 				for (var i = 0; i < this.state.samplesadded.length; i++) {
 					if (this.state.checkedRowsShipment[i]) {
 						indicesToSplice.push(i);
-						var samplesUpdated = [];
-						for (var j = 0; j < this.state.samples.length; j++) {
-							var keyFromShipment = this.state.samplesadded[i]["key_internal"];
-							var keyInSamples = this.state.samples[j]["key_internal"];
-							//REFACTOR: you could just include the added sample in the if statement, and have the duplicate line fire afterward regardless.
-							if (keyFromShipment < keyInSamples) {
-								samplesUpdated.push(this.state.samplesadded[i]);
-								while (j !== this.state.samples.length) {
-									samplesUpdated.push(this.state.samples[j]);
-									j++;
-								}
-								break;
-							} else {
-								samplesUpdated.push(this.state.samples[j]);
-							}
-						}
-					this.setState({ samples: samplesUpdated });
+						samplesUpdated.push(this.state.samplesadded[i]);
 					}
 				}
+			
+				samplesUpdated.sort(function(a, b) {
+					var keyA = a["key_internal"];
+					var keyB = b["key_internal"];
 
-				var updatedShipment = this.state.samplesadded;
-				for (var i = indicesToSplice.length; i > 0; i--) {
-					updatedShipment.splice(indicesToSplice[i],1);
+					return keyB - keyA;
+				});
+
+				for (var j = indicesToSplice.length; j > 0; j--) {
+					shipmentUpdated.splice(indicesToSplice[j-1],1);
 				}
+				
+				this.setState({ 
+					samples: samplesUpdated,
+					samplesadded: shipmentUpdated,
+					resetChecksShipment: true,
+				});
+
 			}
-            //for each selected sample, select number of aliquots
-            //remove record from samplesadded
         }
 
     	save = () => {

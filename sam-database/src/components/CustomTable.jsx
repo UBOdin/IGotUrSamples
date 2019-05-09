@@ -29,8 +29,13 @@ class CustomTable extends Component {
 
 	drawRows(rows) {
 		for (var j = 0; j < this.props.numRows; j++) {
-		rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={this.state.rowsCheckedState[j]} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
-		console.log("this.state.rowsCheckedState[" + j + "] = " + this.state.rowsCheckedState[j]);
+			var isChecked = false;
+			if (!this.props.reset) {
+				isChecked = this.state.rowsCheckedState[j];
+			}
+		
+			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={isChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
+			console.log("this.state.rowsCheckedState[" + j + "] = " + this.state.rowsCheckedState[j]);
         }
 	}	
 	
@@ -54,6 +59,11 @@ class CustomTable extends Component {
 		
 		this.drawRows(rows);
 
+		var isCheckedAll = false;
+
+		if (!this.props.reset) {
+			isCheckedAll = this.state.allChecked;
+		}
         return (
             <Table striped bordered hover>
                 <thead>
@@ -61,7 +71,7 @@ class CustomTable extends Component {
                         <th width="3%">
                             <Form.Check 
 								id="selectall"
-								checked={this.state.allChecked}
+								checked={isCheckedAll}
 								onClick={this.handleSelectAll}
 								/>
                         </th>
@@ -80,8 +90,10 @@ class CustomTable extends Component {
 		}
 		this.setState({ 
 			allChecked: e.target.checked,
-			rowsCheckedState: checkArray });
-		console.log("checkboxes should be: " + this.state.rowsCheckedState.toString());
+			rowsCheckedState: checkArray });	
+
+		this.props.getRows(this.state.rowsCheckedState);
+	console.log("checkboxes should be: " + this.state.rowsCheckedState.toString());
 	};
 }
 

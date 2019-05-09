@@ -79,7 +79,7 @@ class ViewSamples extends Component {
                         {this.state.samples.length} samples 
 					</Col>
                 </Row>
-                <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples}/>
+                <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples} reset={false}/>
             </div>
     	)
 	};

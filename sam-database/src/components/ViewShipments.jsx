@@ -69,7 +69,7 @@ class ViewShipments extends Component {
 
 				<hr />
                 
-				<CustomTable getRows={this.getRowsDefault} numCols={4} numRows={this.state.shipments.length} cols={['Date','From','To','Samples']} toPopulateWith={this.state.shipments} />
+				<CustomTable getRows={this.getRowsDefault} numCols={4} numRows={this.state.shipments.length} cols={['Date','From','To','Samples']} toPopulateWith={this.state.shipments} reset={false}/>
             
 			</div>
         )                
