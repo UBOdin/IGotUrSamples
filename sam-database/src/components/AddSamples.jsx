@@ -377,7 +377,7 @@ class AddSamples extends Component {
 		
 		
 		var sendReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addsamples.php?" + getQuery;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addsamples.php?" + getQuery;
 		console.log(getReq)
 		sendReq = new XMLHttpRequest();
 		sendReq.open(

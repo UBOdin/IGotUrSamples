@@ -25,7 +25,7 @@ class ViewShipments extends Component {
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve_all_shipments.php",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all_shipments.php",
 			true
 		);
 		request.onload = function (e) {

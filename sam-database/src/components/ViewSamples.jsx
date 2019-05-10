@@ -39,7 +39,7 @@ class ViewSamples extends Component {
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve_all.php",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php",
 			true
 		);
 		request.onload = function (e) {
@@ -143,7 +143,7 @@ class ViewSamples extends Component {
 				//make SQL query and retrieve all samples that match (or don't match?) filter
 		this.setState({ connectMsg: 'Created GET query' });
 		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
 		console.log(getReq)
 		filterReq = new XMLHttpRequest();
 		filterReq.open(

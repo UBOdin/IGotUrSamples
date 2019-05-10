@@ -29,7 +29,6 @@ class AddShipments extends Component {
 			checkedRowsSamples: [],
 			checkedRowsShipment: [],
 			samplesToSelectAliquotsFrom: [],
-			checkedRowsInShipment: [],
 			numberAliquotsSelectedForShipment: [],
 			resetChecksSamples: false,
 			resetChecksShipment: false,
@@ -101,7 +100,7 @@ class AddShipments extends Component {
 				//make SQL query and retrieve all samples that match (or don't match?) filter
 		this.setState({ connectMsg: 'Created GET query' });
 		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve.php?" + getQuery;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
 		console.log(getReq)
 		filterReq = new XMLHttpRequest();
 		filterReq.open(
@@ -142,7 +141,7 @@ class AddShipments extends Component {
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/scripts/retrieve_all.php",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php",
 			true
 		);
 		request.onload = function (e) {
@@ -377,8 +376,22 @@ class AddShipments extends Component {
 						}
 					}
 				} else {
-					//TODO: decrement aliquots for samples that aren't going to shipments entirely
-					console.log("didn't find a sample with same number of aliquots!");
+					//TODO: decrement aliquots for samples that aren't going to shipments entirely. Right now this is just duplicate code that copies the whole sample over.
+					for (var j = 0; j < samples.length; j++) {
+						console.log("Comparing " + samples[j]["key_internal"] + " to " + this.state.samplesToSelectAliquotsFrom[i]["key_internal"]);
+						//can't compare objects for equality in javascript...
+                        //have to get value.
+                        var samplesKey = samples[j]["key_internal"];
+                        var aliquotsKey = this.state.samplesToSelectAliquotsFrom[i]["key_internal"];
+
+                        if (samplesKey === aliquotsKey) {
+							indicesToSplice.push(j);
+							samplesToAdd.push(samples[j]);
+                            console.log("Correctly identifies a matching record with the same number of aliquots.");
+						} else {
+							console.log("Samples number " + j + "is not the sample you're looking for!");
+						}
+					}
 				}
 			    
             }
@@ -485,7 +498,6 @@ class AddShipments extends Component {
         }
 
     	save = () => {
-        	//TODO: Send data via POST to database
 			var errors = this.validateForms();
 
 			if (!errors) {
@@ -546,7 +558,7 @@ class AddShipments extends Component {
                 //shipment_tubes table (whichever makes sense)
 		
 		    var sendReq;
-		    var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addshipment.php?" + getQuery;
+		    var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addshipment.php?" + getQuery;
 		    console.log(getReq)
 		    sendReq = new XMLHttpRequest();
 		    sendReq.open(
