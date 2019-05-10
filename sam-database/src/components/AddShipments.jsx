@@ -20,7 +20,7 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
 			samples: [],
-			samplesadded: ['','','','','','','',''],
+			samplesadded: [],
 			minimumRowsInTable: 8,
 			connectionMsg: '',
 			connectionstatus: -1,
@@ -43,11 +43,28 @@ class AddShipments extends Component {
 		this.selectAliquotsForShipment = this.selectAliquotsForShipment.bind(this);
 		this.addFilter = this.addFilter.bind(this);
 		this.processFilter = this.processFilter.bind(this);
-	}
+	    this.send = this.send.bind(this);
+    }
 
+	getDateFormat = (date) => {
+		var formattedDate;
+		var yyyy = date.getFullYear();
+		var mm = String(date.getMonth() + 1).padStart(2, '0');
+		var dd = String(date.getDate()).padStart(2, '0');
+		formattedDate = yyyy + "-" + mm + "-" + dd;
+		return formattedDate;
+	}
 	getFilterValues = (type, equality, value, key) => {
 		var filterVals = this.state.returnedFilterValues;
-		filterVals[key] = [type,equality,value];
+		 
+        console.log("Type is: " + type); 
+        console.log("value is: " + value);
+        
+        if (type === "Date") {
+            value = this.getDateFormat(value);
+        }
+
+        filterVals[key] = [type,equality,value];
 
 		this.setState({ returnedFilterValues: filterVals});
 		console.log(this.state.returnedFilterValues.toString());
@@ -151,6 +168,21 @@ class AddShipments extends Component {
 
     render() {
 
+        console.log(this.state.samplesadded);
+        //This variable, and the following code, are necessary so that the
+        //shipment table doesn't disappear when there are no samples added!
+        var shippingTableRowData = [];
+
+        for (var i = 0; i < this.state.samplesadded.length; i++) {
+            shippingTableRowData.push(this.state.samplesadded[i]);
+        }
+
+        if (shippingTableRowData.length < this.state.minimumRowsInTable) {
+            while (shippingTableRowData.length < this.state.minimumRowsInTable) {
+                shippingTableRowData.push('');
+            }
+        } 
+
 		this.state.samples.sort(function(a, b) {
 			var keyA = a["key_internal"];
 			var keyB = b["key_internal"];
@@ -241,22 +273,21 @@ class AddShipments extends Component {
 					<div>
 					<hr />
                 {this.state.filters}
-				<hr />
                 		<Row>
                     		<Col>
                         		<ButtonGroup>
 				<Button variant="dark" size="lg" onClick={this.addFilter}>Add another filter</Button>
 				<Button variant="dark" size="lg" onClick={this.processFilter}>Filter</Button>
-                <Button variant="dark" size="lg" onClick={this.exportToCSV}>Export</Button>
                             		<Button variant="dark" size="lg" onClick={this.save}>
 										Save
 									</Button>
                         		</ButtonGroup>
                     		</Col>
+				<hr />
+                		</Row>
                     		<Col align="right">
                         		{this.state.samplesadded.length} samples in shipment
                     		</Col>
-                		</Row>
 					</div>
 
 
@@ -272,7 +303,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={this.state.samplesadded.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={this.state.samplesadded} reset={this.state.resetChecksShipment}/>
+                        	<CustomTable numCols={4} numRows={shippingTableRowData.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={shippingTableRowData} reset={this.state.resetChecksShipment}/>
                     	</Col>
                 	</Row> 
 					<Modal show={this.state.showModal}>
@@ -425,8 +456,8 @@ class AddShipments extends Component {
 				var indicesToSplice = [];
 				var samplesUpdated = this.state.samples;
 				var shipmentUpdated = this.state.samplesadded;
-				//REFACTOR: there's a wayyy more cost-effective way to do this. As it is, it re-renders the tables for every checked item. Why not queue them in an array and update them all at once?
-				for (var i = 0; i < this.state.samplesadded.length; i++) {
+				
+                for (var i = 0; i < this.state.samplesadded.length; i++) {
 					if (this.state.checkedRowsShipment[i]) {
 						indicesToSplice.push(i);
 						samplesUpdated.push(this.state.samplesadded[i]);
@@ -458,49 +489,87 @@ class AddShipments extends Component {
 			var errors = this.validateForms();
 
 			if (!errors) {
-                //add sample records to shipment database and mark appropriate
-                //parent and child id
-                //
-                //add new shipment record to database
+                this.send();
                 this.setState({
-					date: '',
+					date: new Date(),
 					to: '',
-					numbersamples: '0',
 					storageconditions: '',
 					shippingconditions: '',
 					othershippingconditions: '',
 					notes: '',
+                    samplesadded: [],
 					alertVisibility: true,
 				});
 			}
 		}
 
     	validateForms = () => {
-		var errorString = '';
-		var errors = false;
+		    var errorString = '';
+		    var errors = false;
 
-		if (this.state.to === '') {
-			errors = true;
-			errorString = "Please enter the shipment's recipient in the 'To:' field."
-		}
+		    if (this.state.to === '') {
+			    errors = true;
+			    errorString = "Please enter the shipment's recipient in the 'To:' field."
+		    }
 
-		if (errors) {
-			this.setState({
-				alertVariant: 'danger',
-				alertText: errorString,
-				alertVisibility: true,
-			});
-			return true;
-		} else {
-			this.setState({
-				alertVariant: 'success',
-				alertText: 'Success!',
-				alertVisibility: true,
-			});
+            if (this.state.samplesadded.length === 0) {
+                errors = true;
+                errorString = "This shipment has no samples!"
+            }
 
-			return false;
-		}
-	}
+		    if (errors) {
+			    this.setState({
+				    alertVariant: 'danger',
+				    alertText: errorString,
+				    alertVisibility: true,
+			    });
+			    return true;
+		    } else {
+			    this.setState({
+				    alertVariant: 'success',
+				    alertText: 'Success!',
+				    alertVisibility: true,
+			    });
+
+			    return false;
+		    }
+	    }
+	    
+        send = () => {
+		    var getQuery =
+                "date=" + this.getDateFormat(this.state.date) + "&" +
+                //TODO: make from location specific to user
+                "from=University at Buffalo&" + 
+                "to=" + this.state.to + "&" + 
+                "samples=" + this.state.samplesadded.length;
+			    //TODO: Add other queries to either shipment_batch table, or
+                //shipment_tubes table (whichever makes sense)
+		
+		    var sendReq;
+		    var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addshipment.php?" + getQuery;
+		    console.log(getReq)
+		    sendReq = new XMLHttpRequest();
+		    sendReq.open(
+			    "GET",
+			    getReq,
+			    true
+		    );
+		    sendReq.onload = function (e) {
+			    if (sendReq.readyState === 4 && sendReq.status === 200) {
+				    console.log("All clear");
+				    console.log(sendReq.responseText);
+			    } else {
+            	    this.setState({
+               		    alertVariant: 'danger',
+               		    alertText: "There was an error connecting to the database: " + sendReq.statusText,
+               		    alertVisibility: true,
+            	    });
+				    console.log(sendReq.responseText);
+			    }
+		    }
+
+		    sendReq.send();	
+	    };
 }
 
 
@@ -543,56 +612,9 @@ class AliquotSelector extends Component {
 				</Form.Control>
 			</div>
 		);
-	}
-	
-	send = () => {
-		var getQuery =
-			//TODO: Replace with shipment-specific queries
-//			"id=" + this.state.id + "&" +
-//			"eval=" + this.state.eval + "&" +
-//			"date=" + this.getDateFormat(this.state.date) + "&" +
-//			"hb=" + this.state.hb + "&" +
-//			"pb=" + this.state.pb + "&" +
-//			"density=" + this.state.density + "&" +
-//			"type=" + this.state.type + "&" +
-//			"aliquots=" + this.state.aliquots + "&" +
-//			"initialstorageconditions=" + this.state.initialstorageconditions + "&" +
-//			"bht=" + this.state.bht + "&" +
-//			"edta=" + this.state.edta + "&" +
-//			"heparin=" + this.state.heparin + "&" +
-//			"mpa=" + this.state.mpa + "&" +
-//			"foilwrapped=" + this.state.foil + "&" +
-//			"othertreatments=" + this.state.othertreatments + "&" +
-//			"unrestrictedconsent=" + this.state.consent;		
-		
-		var sendReq;
-		//TODO: replace with correct php script
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/scripts/addsamples.php?" + getQuery;
-		console.log(getReq)
-		sendReq = new XMLHttpRequest();
-		sendReq.open(
-			"GET",
-			getReq,
-			true
-		);
-		sendReq.onload = function (e) {
-			if (sendReq.readyState === 4 && sendReq.status === 200) {
-				console.log("All clear");
-				console.log(sendReq.responseText);
-			} else {
-            	this.setState({
-               		alertVariant: 'danger',
-               		alertText: "There was an error connecting to the database: " + sendReq.statusText,
-               		alertVisibility: true,
-            	});
-				console.log(sendReq.responseText);
-			}
-		}
+	}	
+}
 
-		sendReq.send();	
-	};
-}
-}
 
 export default AddShipments;
 

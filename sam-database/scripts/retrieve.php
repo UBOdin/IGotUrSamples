@@ -30,7 +30,11 @@ include "connect.php";
 				$query = $query . "WHERE ";
 			}
 
-			$val = $value;
+            if (is_numeric($value) && is_int(0+$value)) {
+			    $val = $value;
+            } else {
+                $val = "'" . $value . "'";
+            }
 
 			$query = $query . $type . $equality . $val; 
 
