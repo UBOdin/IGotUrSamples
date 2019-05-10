@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Row, Col, ButtonGroup, Button } from 'react-bootstrap';
-import Search from './Search';
 import CustomTable from './CustomTable'; 
 
 class ViewShipments extends Component {
@@ -55,7 +54,7 @@ class ViewShipments extends Component {
         return (
             <div>
                 <h3>View Shipments</h3>
-                <Search />
+                <hr />
                 <Row>
                     <Col>
                         <ButtonGroup>

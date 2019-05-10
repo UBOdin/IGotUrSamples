@@ -21,7 +21,7 @@ class AddShipments extends Component {
             alertVariant: 'danger',
 			samples: [],
 			samplesadded: [],
-			minimumRowsInTable: 8,
+			minimumRowsInTable: 16,
 			connectionMsg: '',
 			connectionstatus: -1,
 			aliquotSelectorsForModal: [],
@@ -306,7 +306,7 @@ class AddShipments extends Component {
                         	<CustomTable numCols={4} numRows={shippingTableRowData.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={shippingTableRowData} reset={this.state.resetChecksShipment}/>
                     	</Col>
                 	</Row> 
-					<Modal show={this.state.showModal}>
+					<Modal size="lg" show={this.state.showModal}>
 						<Modal.Header>
 							<Modal.Title>Add samples to shipment</Modal.Title>
 						</Modal.Header>
@@ -601,15 +601,19 @@ class AliquotSelector extends Component {
 
 		return (
 			<div>
-				<p>Sample #{this.props.number}: ID {this.props.data["id"]}, Eval {this.props.data["eval"]}, Type: {this.props.data["type"]}}</p>
-				<br/>Number of aliquots to add to shipment:
-                <Form.Control 
-                	id="storageconditions" 
-                    as="select"
-                    value={this.state.selected}
-                    onChange={this.handleChange}>
-   	             	{options}
-				</Form.Control>
+                <Row>
+                    <Col xs={6}>Sample #{this.props.number + 1}: Add up to {this.props.data["aliquots"]} aliquots of {this.props.data.type} (ID {this.props.data["id"]}, Eval {this.props.data["eval"]})</Col>
+                    <Col>
+                        <Form.Control 
+                	        id="storageconditions" 
+                            as="select"
+                            value={this.state.selected}
+                            onChange={this.handleChange}>
+   	             	        {options}
+				        </Form.Control>
+                    </Col>
+                </Row>
+                <p/>
 			</div>
 		);
 	}	
