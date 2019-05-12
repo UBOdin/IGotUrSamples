@@ -9,15 +9,11 @@ include "connect.php";
 		$columns_string = "(";
 		$values_string = "(";
 		$db = "eehuruguayresearch_db";
-		$table = "Samples";
-        $aliquots;
+		$table = "Shipments_tubes";
 
 		foreach ($_GET as $column => $value) {
 			$columns_string = $columns_string . "`" . $column . "`" . ', ';
 			$values_string = $values_string . "'" . $value . "'" . ', ';
-            if ($column == "aliquots") {
-                $aliquots = (int)$value;
-            }
 		}
 		$columns_string = substr($columns_string, 0, -2) . ")";
 		$values_string = substr($values_string, 0, -2) . ")";
@@ -29,19 +25,8 @@ include "connect.php";
 	
 		$id = $conn->lastInsertId();
 		echo "add success" . "<br>" . "<br>";
-        //Now, add tubes
-        $query = "";
-        $table = "Tubes";
-
-        for ($x = 0; $x < $aliquots; $x++) {
-            $query = "INSERT INTO `" . $db . "`.`" . $table . "` " .
-            "(`sample_key_internal`) VALUES ('" . $id . "')";
-
-            echo $query . "<br>";
-
-            $conn->exec($query);
-        }
-    }
+		return $id;
+	}
 
 	catch(PDOException $e){
 		echo "add failed: " . $e->getMessage() . "<br>" . "<br>";

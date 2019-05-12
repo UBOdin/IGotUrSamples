@@ -20,7 +20,11 @@ class AddShipments extends Component {
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
 			samples: [],
-			samplesadded: [],
+			samplesvisible: [],
+            samplesadded: [],
+            tubes: [],
+            tubesinshipments: [],
+            shipments: [],
 			minimumRowsInTable: 16,
 			connectionMsg: '',
 			connectionstatus: -1,
@@ -86,7 +90,7 @@ class AddShipments extends Component {
 				getQuery = getQuery + '&';
 			}
 
-			//if type's not null (should never be!)
+			//if type's not null
 			//if value's not null
 			if (this.state.returnedFilterValues[i][0] !== '' &&
 				this.state.returnedFilterValues[i][2] !== '') {
@@ -137,14 +141,40 @@ class AddShipments extends Component {
 
 	componentDidMount() {
 		var request;
+        var request_tubes;
+        var request_shipments;
+        var request_tubes_in_shipments;
 
 		request = new XMLHttpRequest();
+        request_tubes = new XMLHttpRequest();
+        request_shipments = new XMLHttpRequest();
+        request_tubes_in_shipments = new XMLHttpRequest();
+
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Samples",
 			true
 		);
-		request.onload = function (e) {
+
+		request_tubes.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Tubes",
+			true
+		);
+
+		request_shipments.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Shipments_batch",
+			true
+		);
+
+		request_tubes_in_shipments.open(
+			"GET",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Shipments_tubes",
+			true
+		);
+		
+        request.onload = function (e) {
 			if (request.readyState === 4 && request.status === 200) {
 				console.log("All clear");
 				this.setState({ 
@@ -161,8 +191,92 @@ class AddShipments extends Component {
 			}
 		}.bind(this);
 
-		request.send();	
-		
+
+        request_tubes.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					connectMsg: request.responseText,
+					tubes: JSON.parse(request.responseText),
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+        request_shipments.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					connectMsg: request.responseText,
+					shipments: JSON.parse(request.responseText),
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+        request_tubes_in_shipments.onload = function (e) {
+			if (request.readyState === 4 && request.status === 200) {
+				console.log("All clear");
+				this.setState({ 
+					connectMsg: request.responseText,
+					tubesinshipments: JSON.parse(request.responseText),
+					connectionstatus: request.status, 
+				});
+			} else {
+				console.error(request.statusText);
+				this.setState({
+					connectMsg: request.responseText,
+					connectionstatus: request.status,
+				});
+			}
+		}.bind(this);
+
+        request.send();	
+        request_tubes.send();
+        request_shipments.send();
+        request_tubes_in_shipments.send();
+
+        //Removes any aliquots already in a shipment from consideration for a
+        //new shiment.
+        for (var shipment_tube in this.state.tubesinshipments) {
+            var shipment_key = shipment_tube["shipment_key_internal"];
+            var tube_key = shipment_tube["tube_key_internal"];
+            var sample_key;
+
+            for (var tube in this.state.tubes) {
+                if (tube["key_internal"] === tube_key) {
+                    sample_key = tube["sample_key_internal"];
+                    break;
+                }
+            }
+
+            for (var shipment in this.state.shipments) {
+                if (shipment["key_internal"] === shipment_key 
+                    && !shipment["received"]) {
+                    for (var sample in this.state.samplesvisible) {
+                        var sample_id = sample["key_internal"];
+                        if (sample_id === sample_key) {
+                            sample["aliquots"]--;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+	
+        this.setState({ samplesvisible: this.state.samples });
 	}
 
     render() {
@@ -182,7 +296,7 @@ class AddShipments extends Component {
             }
         } 
 
-		this.state.samples.sort(function(a, b) {
+		this.state.samplesvisible.sort(function(a, b) {
 			var keyA = a["key_internal"];
 			var keyB = b["key_internal"];
 
@@ -293,7 +407,7 @@ class AddShipments extends Component {
            
 		   			<Row>
                     	<Col>
-                       		<CustomTable numCols={4} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samples} getRows={this.getCheckedStateFromSamplesTable} reset={this.state.resetChecksSamples}/>
+                       		<CustomTable numCols={4} numRows={this.state.samplesvisible.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesvisible} getRows={this.getCheckedStateFromSamplesTable} reset={this.state.resetChecksSamples}/>
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
@@ -351,7 +465,7 @@ class AddShipments extends Component {
 
 		moveAliquotsToShipment = () => {
 			console.log("number of aliquots selected for shipment: " + this.state.numberAliquotsSelectedForShipment);
-			var samples = this.state.samples;
+			var samples = this.state.samplesvisible;
             var indicesToSplice = [];
 			var samplesToAdd = [];
 			console.log(samples);
@@ -359,7 +473,9 @@ class AddShipments extends Component {
 			//REFACTOR: figure out how to use javascript array methods to reduce the n^2 time complexity here
 			for (var i = 0; i < this.state.aliquotSelectorsForModal.length; i++) {
 				console.log("Comparing " + this.state.numberAliquotsSelectedForShipment[i] + " to " + this.state.samplesToSelectAliquotsFrom[i]["aliquots"]);
-				if (this.state.numberAliquotsSelectedForShipment[i] === this.state.samplesToSelectAliquotsFrom[i]["aliquots"]) {
+
+                //In this case, we're moving all aliquots for a given sample.
+                if (this.state.numberAliquotsSelectedForShipment[i] === this.state.samplesToSelectAliquotsFrom[i]["aliquots"]) {
 					for (var j = 0; j < samples.length; j++) {
 						console.log("Comparing " + samples[j]["key_internal"] + " to " + this.state.samplesToSelectAliquotsFrom[i]["key_internal"]);
 						//can't compare objects for equality in javascript...
@@ -375,24 +491,21 @@ class AddShipments extends Component {
 							console.log("Samples number " + j + "is not the sample you're looking for!");
 						}
 					}
-				} else {
-					//TODO: decrement aliquots for samples that aren't going to shipments entirely. Right now this is just duplicate code that copies the whole sample over.
-					for (var j = 0; j < samples.length; j++) {
-						console.log("Comparing " + samples[j]["key_internal"] + " to " + this.state.samplesToSelectAliquotsFrom[i]["key_internal"]);
-						//can't compare objects for equality in javascript...
-                        //have to get value.
+				} else if (this.state.numberAliquotsSelectedForShipment[i] < this.state.samplesToSelectAliquotsFrom[i]["aliquots"]
+                    && this.state.numberAliquotsSelectedForShipment[i] > 0) {
+                    
+                    var remaining_aliquots = this.state.samplesToSelectAliquotsFrom[i]["aliquots"] - this.state.numberAliquotsSelectForShipment[i];
+                    for (var j = 0; j < samples.length; j++) {
                         var samplesKey = samples[j]["key_internal"];
                         var aliquotsKey = this.state.samplesToSelectAliquotsFrom[i]["key_internal"];
-
+                        
                         if (samplesKey === aliquotsKey) {
-							indicesToSplice.push(j);
-							samplesToAdd.push(samples[j]);
-                            console.log("Correctly identifies a matching record with the same number of aliquots.");
-						} else {
-							console.log("Samples number " + j + "is not the sample you're looking for!");
-						}
-					}
-				}
+                            samples[j]["aliquots"] = this.state.numberAliquotsSelectedForShipment[i];
+                            samplesToAdd.push(samples[j]);
+                            samples[j]["aliquots"] = remaining_aliquots;
+                        }
+                    }
+                } else { } 
 			    
             }
 			
@@ -410,7 +523,7 @@ class AddShipments extends Component {
 				showModal: false,
 				samplesToSelectAliquotsFrom: [],
 				numberAlquotsSelectedForShipment: [],
-				samples: samples,
+				samplesvisible: samples,
 				samplesadded: samplesToAdd,
 				checkedRowsSamples: check,
 				resetChecksSamples: true,
@@ -432,9 +545,9 @@ class AddShipments extends Component {
 			
 				var toAliquotForShipment = [];
 			
-				for (var i = 0; i < this.state.samples.length; i++) {
+				for (var i = 0; i < this.state.samplesvisible.length; i++) {
 					if (checkedRows[i]) {
-						toAliquotForShipment.push(this.state.samples[i]);
+						toAliquotForShipment.push(this.state.samplesvisible[i]);
 					}
 				}
 				console.log("Aliquots to select: " + toAliquotForShipment.toString());
@@ -467,7 +580,7 @@ class AddShipments extends Component {
 
 			if (areChecks) {
 				var indicesToSplice = [];
-				var samplesUpdated = this.state.samples;
+				var samplesUpdated = this.state.samplesvisible;
 				var shipmentUpdated = this.state.samplesadded;
 				
                 for (var i = 0; i < this.state.samplesadded.length; i++) {
@@ -548,12 +661,28 @@ class AddShipments extends Component {
 	    }
 	    
         send = () => {
+            //add to shipment
+            
+            var sampleIDQuery = "";
+            var numberSamplesQuery = "";
+            for (var i = 0; i < this.state.samplesadded.length; i++) {
+                sampleIDQuery = sampleIDQuery + "id" + i + "=" + this.state.samplesadded[i]["key_internal"];
+
+                numberSamplesQuery = numberSamplesQuery + "num" + i + "=" + this.state.samplesadded[i]["aliquots"];
+
+                if (i < (this.state.samplesadded.length - 1)) {
+                    sampleIDQuery = sampleIDQuery + "&";
+                    numberSamplesQuery = numberSamplesQuery + "&"; 
+            }
+}
 		    var getQuery =
                 "date=" + this.getDateFormat(this.state.date) + "&" +
                 //TODO: make from location specific to user
                 "from=University at Buffalo&" + 
                 "to=" + this.state.to + "&" + 
-                "samples=" + this.state.samplesadded.length;
+                "samples=" + this.state.samplesadded.length + "&" + 
+                sampleIDQuery + "&" + 
+                numberSamplesQuery;
 			    //TODO: Add other queries to either shipment_batch table, or
                 //shipment_tubes table (whichever makes sense)
 		
@@ -609,7 +738,7 @@ class AliquotSelector extends Component {
 			options.push(<option>{i}</option>);
 		}
 
-		options.push(<option>Remove</option>);
+		options.push(<option>0</option>);
 
 		return (
 			<div>
