@@ -104,7 +104,7 @@ class AddShipments extends Component {
 				//make SQL query and retrieve all samples that match (or don't match?) filter
 		this.setState({ connectMsg: 'Created GET query' });
 		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve.php?" + getQuery;
 		console.log(getReq)
 		filterReq = new XMLHttpRequest();
 		filterReq.open(
@@ -142,41 +142,28 @@ class AddShipments extends Component {
 	componentDidMount() {
 		var request;
         var request_tubes;
-        var request_shipments;
-        var request_tubes_in_shipments;
 
 		request = new XMLHttpRequest();
         request_tubes = new XMLHttpRequest();
-        request_shipments = new XMLHttpRequest();
-        request_tubes_in_shipments = new XMLHttpRequest();
 
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Samples",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Samples",
 			true
 		);
 
 		request_tubes.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Tubes",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Tubes",
 			true
 		);
 
-		request_shipments.open(
-			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Shipments_batch",
-			true
-		);
 
-		request_tubes_in_shipments.open(
-			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Shipments_tubes",
-			true
-		);
 		
         request.onload = function (e) {
 			if (request.readyState === 4 && request.status === 200) {
 				console.log("All clear");
+				console.log(request.responseText);
 				this.setState({ 
 					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
@@ -193,90 +180,66 @@ class AddShipments extends Component {
 
 
         request_tubes.onload = function (e) {
-			if (request.readyState === 4 && request.status === 200) {
+			if (request_tubes.readyState === 4 && request_tubes.status === 200) {
 				console.log("All clear");
+				console.log(request_tubes.responseText);
 				this.setState({ 
-					connectMsg: request.responseText,
-					tubes: JSON.parse(request.responseText),
-					connectionstatus: request.status, 
+					connectMsg: request_tubes.responseText,
+					tubes: JSON.parse(request_tubes.responseText),
+					connectionstatus: request_tubes.status, 
 				});
 			} else {
-				console.error(request.statusText);
+				console.error(request_tubes.statusText);
 				this.setState({
-					connectMsg: request.responseText,
-					connectionstatus: request.status,
-				});
-			}
-		}.bind(this);
-
-        request_shipments.onload = function (e) {
-			if (request.readyState === 4 && request.status === 200) {
-				console.log("All clear");
-				this.setState({ 
-					connectMsg: request.responseText,
-					shipments: JSON.parse(request.responseText),
-					connectionstatus: request.status, 
-				});
-			} else {
-				console.error(request.statusText);
-				this.setState({
-					connectMsg: request.responseText,
-					connectionstatus: request.status,
-				});
-			}
-		}.bind(this);
-
-        request_tubes_in_shipments.onload = function (e) {
-			if (request.readyState === 4 && request.status === 200) {
-				console.log("All clear");
-				this.setState({ 
-					connectMsg: request.responseText,
-					tubesinshipments: JSON.parse(request.responseText),
-					connectionstatus: request.status, 
-				});
-			} else {
-				console.error(request.statusText);
-				this.setState({
-					connectMsg: request.responseText,
-					connectionstatus: request.status,
+					connectMsg: request_tubes.responseText,
+					connectionstatus: request_tubes.status,
 				});
 			}
 		}.bind(this);
 
         request.send();	
         request_tubes.send();
-        request_shipments.send();
-        request_tubes_in_shipments.send();
 
         //Removes any aliquots already in a shipment from consideration for a
         //new shiment.
-        for (var shipment_tube in this.state.tubesinshipments) {
-            var shipment_key = shipment_tube["shipment_key_internal"];
-            var tube_key = shipment_tube["tube_key_internal"];
-            var sample_key;
+		
+		var samples_excluding_shipped_tubes = this.state.samples;
+		var samples_depleted_to_splice = [];
 
-            for (var tube in this.state.tubes) {
-                if (tube["key_internal"] === tube_key) {
-                    sample_key = tube["sample_key_internal"];
-                    break;
-                }
-            }
-
-            for (var shipment in this.state.shipments) {
-                if (shipment["key_internal"] === shipment_key 
-                    && !shipment["received"]) {
-                    for (var sample in this.state.samplesvisible) {
-                        var sample_id = sample["key_internal"];
-                        if (sample_id === sample_key) {
-                            sample["aliquots"]--;
-                            break;
-                        }
+        for (var tube in this.state.tubes) {
+            if (tube["in_shipment"]) {	
+            	for (var sample in samples_excluding_shipped_tubes) {
+                	var sample_id = sample["key_internal"];
+					var tube_sample_id = tube["sample_key_internal"];
+                    if (sample_id === tube_sample_id) {
+                        sample["aliquots"]--;
+						if (sample["aliquots"] == 0) {
+							samples_depleted_to_splice.push(sample["key_internal"]);
+						}
+                        break;
                     }
                 }
-            }
-        }
-	
-        this.setState({ samplesvisible: this.state.samples });
+			}
+		}
+
+		//Finally, remove any sample records for which there are no available aliquots/tubes
+		//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
+		for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
+			for (var id in samples_depleted_to_splice) {
+				if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
+					samples_excluding_shipped_tubes.splice(i, 1);
+				}
+			}
+		}
+
+		console.log(samples_excluding_shipped_tubes);
+
+        this.setState({ 
+			samples: samples_excluding_shipped_tubes,
+			samplesvisible: samples_excluding_shipped_tubes,
+		});
+
+		console.log(this.state.samplesvisible);
 	}
 
     render() {
@@ -288,7 +251,7 @@ class AddShipments extends Component {
 
         for (var i = 0; i < this.state.samplesadded.length; i++) {
             shippingTableRowData.push(this.state.samplesadded[i]);
-        }
+		}
 
         if (shippingTableRowData.length < this.state.minimumRowsInTable) {
             while (shippingTableRowData.length < this.state.minimumRowsInTable) {
@@ -687,7 +650,7 @@ class AddShipments extends Component {
                 //shipment_tubes table (whichever makes sense)
 		
 		    var sendReq;
-		    var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addshipment.php?" + getQuery;
+			var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/addshipment.php?" + getQuery;
 		    console.log(getReq)
 		    sendReq = new XMLHttpRequest();
 		    sendReq.open(
@@ -709,7 +672,8 @@ class AddShipments extends Component {
 			    }
 		    }
 
-		    sendReq.send();	
+		    sendReq.send();
+			//TODO: Check... are the samples that get transferred removed from the left-hand table?
 	    };
 }
 

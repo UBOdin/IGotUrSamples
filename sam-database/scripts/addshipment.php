@@ -35,19 +35,26 @@ include "connect.php";
         $query = "";
         $table = "Tubes";
 
-        //TODO: 
+		class x {
+		}
+
+        //TODO:
         for ($x = 0; $x < $_GET["samples"]; $x++) {
-            for ($j = 0; $j < $_GET["num" . j]; $j++) {
-               //UPDATE Tubes SET inShipment = true, shipmentID = $id WHERE  
-            }
-        }
-        //for every sample added
-        //for number of tubes needed
-        //Get ALL tubes from sample not marked for shipment
-
-        //mark for shipment
-        //add id to shipment
-
+			//add all keys_internal for records matching the sample_key_internal of id(x+1) AND WHERE inshipment = false to the array
+			$tubeIDs = array();
+			$query = "SELECT key_internal FROM Tubes WHERE (sample_key_internal=" . $_GET["id" . (x + 1)] . ") AND (in_shipment=false);";
+			$stmt = $conn->prepare($query);
+			$stmt->execute();
+			
+			$tubeIDs.push($stmt->fetchAll(PDO::FETCH_CLASS, "x"));
+			//for num(x+1)
+			for ($y = 0; $y < (int)$_GET["num" . $x+1]; $y++) {
+				//mark $tubeIDs[x] inshipment = true and shipmentid = id
+				$query = "UPDATE Tubes SET in_shipment=true, shipment_id=" . $id . " WHERE key_internal=" . $tubeIDs[$y] . ";";
+				$conn->exec($query);
+			}
+			
+		}
     }
 
 	catch(PDOException $e){
