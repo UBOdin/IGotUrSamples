@@ -18,8 +18,12 @@ include "connect.php";
                 $numSamples = (int)$value;
             }
 
-			$columns_string = $columns_string . "`" . $column . "`" . ', ';
-			$values_string = $values_string . "'" . $value . "'" . ', ';
+			//this catches the extra fields in the GET request
+			if (($column[0] != "i" && $column[1] != "d") && 
+				($column[0] != "n" && $column[1] != "u")) {
+				$columns_string = $columns_string . "`" . $column . "`" . ', ';
+				$values_string = $values_string . "'" . $value . "'" . ', ';
+			}
 		}
 		$columns_string = substr($columns_string, 0, -2) . ")";
 		$values_string = substr($values_string, 0, -2) . ")";
@@ -38,18 +42,18 @@ include "connect.php";
 		class x {
 		}
 
-        //TODO:
-        for ($x = 0; $x < $_GET["samples"]; $x++) {
+        for ($i = 0; $i < $_GET["samples"]; $i++) {
 			//add all keys_internal for records matching the sample_key_internal of id(x+1) AND WHERE inshipment = false to the array
 			$tubeIDs = array();
-			$query = "SELECT key_internal FROM Tubes WHERE (sample_key_internal=" . $_GET["id" . (x + 1)] . ") AND (in_shipment=false);";
+			$query = "SELECT key_internal FROM Tubes WHERE (sample_key_internal=" . $_GET["id" . ($i + 1)] . ") AND (in_shipment=false);";
 			$stmt = $conn->prepare($query);
 			$stmt->execute();
 			
-			$tubeIDs.push($stmt->fetchAll(PDO::FETCH_CLASS, "x"));
+			array_push($tubeIDs,($stmt->fetchAll(PDO::FETCH_CLASS, "x")));
 			//for num(x+1)
-			for ($y = 0; $y < (int)$_GET["num" . $x+1]; $y++) {
+			for ($y = 0; $y < (int)$_GET["num" . ($i + 1)]; $y++) {
 				//mark $tubeIDs[x] inshipment = true and shipmentid = id
+				//TODO: There's an error on this line having to do with accessing the tubeIDs array at index $y. Syntax must be off?
 				$query = "UPDATE Tubes SET in_shipment=true, shipment_id=" . $id . " WHERE key_internal=" . $tubeIDs[$y] . ";";
 				$conn->exec($query);
 			}

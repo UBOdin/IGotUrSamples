@@ -27,7 +27,8 @@ class AddShipments extends Component {
             shipments: [],
 			minimumRowsInTable: 16,
 			connectionMsg: '',
-			connectionstatus: -1,
+			samplesconnectionstatus: -1,
+			tubesconnectionstatus: -1,
 			aliquotSelectorsForModal: [],
 			showModal: false,
 			checkedRowsSamples: [],
@@ -47,7 +48,7 @@ class AddShipments extends Component {
 		this.addFilter = this.addFilter.bind(this);
 		this.processFilter = this.processFilter.bind(this);
 	    this.send = this.send.bind(this);
-    }
+	}
 
 	getDateFormat = (date) => {
 		var formattedDate;
@@ -141,110 +142,106 @@ class AddShipments extends Component {
 
 	componentDidMount() {
 		var request;
-        var request_tubes;
 
 		request = new XMLHttpRequest();
-        request_tubes = new XMLHttpRequest();
 
 		request.open(
 			"GET",
 			"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Samples",
 			true
 		);
-
-		request_tubes.open(
-			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Tubes",
-			true
-		);
-
-
 		
         request.onload = function (e) {
 			if (request.readyState === 4 && request.status === 200) {
 				console.log("All clear");
-				console.log(request.responseText);
 				this.setState({ 
 					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
-					connectionstatus: request.status, 
+					samplesconnectionstatus: request.status, 
 				});
+
+        		var request_tubes = new XMLHttpRequest();
+
+				request_tubes.open(
+					"GET",
+					"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Tubes",
+					true
+				);
+        
+				request_tubes.onload = function (e) {
+					if (request_tubes.readyState === 4 && request_tubes.status === 200) {
+						console.log("All clear");
+						this.setState({ 
+							connectMsg: request_tubes.responseText,
+							tubes: JSON.parse(request_tubes.responseText),
+							tubesconnectionstatus: request_tubes.status, 
+						});
+
+			        //Now that both samples and tubes are loeaded, we need to remove any aliquots already in a shipment from consideration for a
+			        //new shiment.
+
+					var samples_excluding_shipped_tubes = this.state.samples;
+					var samples_depleted_to_splice = [];
+
+//        			for (var tube in this.state.tubes) {
+//            			if (tube["in_shipment"]) {	
+//            				for (var sample in samples_excluding_shipped_tubes) {
+//                				var sample_id = sample["key_internal"];
+//								var tube_sample_id = tube["sample_key_internal"];
+//                    			if (sample_id === tube_sample_id) {
+//                        			sample["aliquots"]--;
+//									if (sample["aliquots"] == 0) {
+//										samples_depleted_to_splice.push(sample["key_internal"]);
+//									}
+//                        			break;
+//                    			}
+//                			}
+//						}
+//					}
+
+					//Finally, remove any sample records for which there are no available aliquots/tubes
+					//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
+//					for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
+//						for (var id in samples_depleted_to_splice) {
+///							if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
+//								samples_excluding_shipped_tubes.splice(i, 1);
+//							}
+//						}
+//					}
+
+
+        			this.setState({ 
+						samples: samples_excluding_shipped_tubes,
+						samplesvisible: samples_excluding_shipped_tubes,
+					});
+
+
+					} else {
+						console.error(request_tubes.statusText);
+						this.setState({
+							connectMsg: request_tubes.responseText,
+							tubesconnectionstatus: request_tubes.status,
+						});
+					}
+				}.bind(this);
+
+        		request_tubes.send();
+				
 			} else {
 				console.error(request.statusText);
 				this.setState({
 					connectMsg: request.responseText,
-					connectionstatus: request.status,
-				});
-			}
-		}.bind(this);
-
-
-        request_tubes.onload = function (e) {
-			if (request_tubes.readyState === 4 && request_tubes.status === 200) {
-				console.log("All clear");
-				console.log(request_tubes.responseText);
-				this.setState({ 
-					connectMsg: request_tubes.responseText,
-					tubes: JSON.parse(request_tubes.responseText),
-					connectionstatus: request_tubes.status, 
-				});
-			} else {
-				console.error(request_tubes.statusText);
-				this.setState({
-					connectMsg: request_tubes.responseText,
-					connectionstatus: request_tubes.status,
+					samplesconnectionstatus: request.status,
 				});
 			}
 		}.bind(this);
 
         request.send();	
-        request_tubes.send();
-
-        //Removes any aliquots already in a shipment from consideration for a
-        //new shiment.
-		
-		var samples_excluding_shipped_tubes = this.state.samples;
-		var samples_depleted_to_splice = [];
-
-        for (var tube in this.state.tubes) {
-            if (tube["in_shipment"]) {	
-            	for (var sample in samples_excluding_shipped_tubes) {
-                	var sample_id = sample["key_internal"];
-					var tube_sample_id = tube["sample_key_internal"];
-                    if (sample_id === tube_sample_id) {
-                        sample["aliquots"]--;
-						if (sample["aliquots"] == 0) {
-							samples_depleted_to_splice.push(sample["key_internal"]);
-						}
-                        break;
-                    }
-                }
-			}
-		}
-
-		//Finally, remove any sample records for which there are no available aliquots/tubes
-		//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
-		for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
-			for (var id in samples_depleted_to_splice) {
-				if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
-					samples_excluding_shipped_tubes.splice(i, 1);
-				}
-			}
-		}
-
-		console.log(samples_excluding_shipped_tubes);
-
-        this.setState({ 
-			samples: samples_excluding_shipped_tubes,
-			samplesvisible: samples_excluding_shipped_tubes,
-		});
-
-		console.log(this.state.samplesvisible);
 	}
 
-    render() {
+	
 
-        console.log(this.state.samplesadded);
+    render() {
         //This variable, and the following code, are necessary so that the
         //shipment table doesn't disappear when there are no samples added!
         var shippingTableRowData = [];
@@ -258,6 +255,8 @@ class AddShipments extends Component {
                 shippingTableRowData.push('');
             }
         } 
+
+
 
 		this.state.samplesvisible.sort(function(a, b) {
 			var keyA = a["key_internal"];
@@ -370,7 +369,7 @@ class AddShipments extends Component {
            
 		   			<Row>
                     	<Col>
-                       		<CustomTable numCols={4} numRows={this.state.samplesvisible.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesvisible} getRows={this.getCheckedStateFromSamplesTable} reset={this.state.resetChecksSamples}/>
+                       		<CustomTable numCols={5} numRows={this.state.samplesvisible.length} cols={['ID','Eval','Date','Type','Aliquots']} toPopulateWith={this.state.samplesvisible} getRows={this.getCheckedStateFromSamplesTable} reset={this.state.resetChecksSamples}/>
                     	</Col>
                     	<Col md="auto">
 							<div style={{padding: 25}}>
@@ -379,7 +378,7 @@ class AddShipments extends Component {
                   			</div>
 		    			</Col>
                     	<Col>
-                        	<CustomTable numCols={4} numRows={shippingTableRowData.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={shippingTableRowData} reset={this.state.resetChecksShipment}/>
+                        	<CustomTable numCols={5} numRows={shippingTableRowData.length} cols={['ID','Eval','Date','Type','Aliquots']} getRows={this.getCheckedStateFromShipmentTable} toPopulateWith={shippingTableRowData} reset={this.state.resetChecksShipment}/>
                     	</Col>
                 	</Row> 
 					<Modal size="lg" show={this.state.showModal}>
@@ -427,20 +426,16 @@ class AddShipments extends Component {
 		}
 
 		moveAliquotsToShipment = () => {
-			console.log("number of aliquots selected for shipment: " + this.state.numberAliquotsSelectedForShipment);
 			var samples = this.state.samplesvisible;
             var indicesToSplice = [];
 			var samplesToAdd = [];
-			console.log(samples);
 			//Get aliquots for each sample allocated for shipment
 			//REFACTOR: figure out how to use javascript array methods to reduce the n^2 time complexity here
 			for (var i = 0; i < this.state.aliquotSelectorsForModal.length; i++) {
-				console.log("Comparing " + this.state.numberAliquotsSelectedForShipment[i] + " to " + this.state.samplesToSelectAliquotsFrom[i]["aliquots"]);
 
                 //In this case, we're moving all aliquots for a given sample.
                 if (this.state.numberAliquotsSelectedForShipment[i] === this.state.samplesToSelectAliquotsFrom[i]["aliquots"]) {
 					for (var j = 0; j < samples.length; j++) {
-						console.log("Comparing " + samples[j]["key_internal"] + " to " + this.state.samplesToSelectAliquotsFrom[i]["key_internal"]);
 						//can't compare objects for equality in javascript...
                         //have to get value.
                         var samplesKey = samples[j]["key_internal"];
@@ -449,15 +444,15 @@ class AddShipments extends Component {
                         if (samplesKey === aliquotsKey) {
 							indicesToSplice.push(j);
 							samplesToAdd.push(samples[j]);
-                            console.log("Correctly identifies a matching record with the same number of aliquots.");
 						} else {
-							console.log("Samples number " + j + "is not the sample you're looking for!");
 						}
 					}
+				
+				//...aand here we're dealing with a situation where only SOME aliquots from a given sample are going in the shipment
 				} else if (this.state.numberAliquotsSelectedForShipment[i] < this.state.samplesToSelectAliquotsFrom[i]["aliquots"]
                     && this.state.numberAliquotsSelectedForShipment[i] > 0) {
                     
-                    var remaining_aliquots = this.state.samplesToSelectAliquotsFrom[i]["aliquots"] - this.state.numberAliquotsSelectForShipment[i];
+                    var remaining_aliquots = this.state.samplesToSelectAliquotsFrom[i]["aliquots"] - this.state.numberAliquotsSelectedForShipment[i];
                     for (var j = 0; j < samples.length; j++) {
                         var samplesKey = samples[j]["key_internal"];
                         var aliquotsKey = this.state.samplesToSelectAliquotsFrom[i]["key_internal"];
@@ -504,8 +499,6 @@ class AddShipments extends Component {
 
 			if (areChecks) {
 				var checkedRows = this.state.checkedRowsSamples;
-				console.log("checkedRows: " + checkedRows);
-			
 				var toAliquotForShipment = [];
 			
 				for (var i = 0; i < this.state.samplesvisible.length; i++) {
@@ -527,9 +520,6 @@ class AddShipments extends Component {
 					samplesToSelectAliquotsFrom: toAliquotForShipment,
 					showModal: true,
 				});
-				console.log("aliquotSelectors (local var): " + aliquotSelectors);
-				console.log("aliquotSelectorsForModal (state): " + this.state.aliquotSelectorsForModal);
-				console.log("samplesToSelectAliquotsFrom: " + this.state.samplesToSelectAliquotsFrom);	
         	}
 		};
 
@@ -623,15 +613,16 @@ class AddShipments extends Component {
 		    }
 	    }
 	    
-        send = () => {
+        send() {
             //add to shipment
             
             var sampleIDQuery = "";
             var numberSamplesQuery = "";
-            for (var i = 0; i < this.state.samplesadded.length; i++) {
-                sampleIDQuery = sampleIDQuery + "id" + i + "=" + this.state.samplesadded[i]["key_internal"];
 
-                numberSamplesQuery = numberSamplesQuery + "num" + i + "=" + this.state.samplesadded[i]["aliquots"];
+            for (var i = 0; i < this.state.samplesadded.length; i++) {
+                sampleIDQuery = sampleIDQuery + "id" + (i + 1) + "=" + this.state.samplesadded[i]["key_internal"];
+
+                numberSamplesQuery = numberSamplesQuery + "num" + (i + 1) + "=" + this.state.samplesadded[i]["aliquots"];
 
                 if (i < (this.state.samplesadded.length - 1)) {
                     sampleIDQuery = sampleIDQuery + "&";
@@ -670,10 +661,9 @@ class AddShipments extends Component {
             	    });
 				    console.log(sendReq.responseText);
 			    }
-		    }
+		    }.bind(this);
 
 		    sendReq.send();
-			//TODO: Check... are the samples that get transferred removed from the left-hand table?
 	    };
 }
 
