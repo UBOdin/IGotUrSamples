@@ -171,6 +171,7 @@ class AddShipments extends Component {
 				request_tubes.onload = function (e) {
 					if (request_tubes.readyState === 4 && request_tubes.status === 200) {
 						console.log("All clear");
+						console.log(request_tubes.responseText);
 						this.setState({ 
 							connectMsg: request_tubes.responseText,
 							tubes: JSON.parse(request_tubes.responseText),
@@ -183,31 +184,35 @@ class AddShipments extends Component {
 					var samples_excluding_shipped_tubes = this.state.samples;
 					var samples_depleted_to_splice = [];
 
-//        			for (var tube in this.state.tubes) {
-//            			if (tube["in_shipment"]) {	
-//            				for (var sample in samples_excluding_shipped_tubes) {
-//                				var sample_id = sample["key_internal"];
-//								var tube_sample_id = tube["sample_key_internal"];
-//                    			if (sample_id === tube_sample_id) {
-//                        			sample["aliquots"]--;
-//									if (sample["aliquots"] == 0) {
-//										samples_depleted_to_splice.push(sample["key_internal"]);
-//									}
-//                        			break;
-//                    			}
-//                			}
-//						}
-//					}
+        			for (var tube in this.state.tubes) {
+						var shipment_true = parseInt(tube["in_shipment"]);
+						if (shipment_true) {
+							console.log("Tube ID# " + tube["key_internal"] + " from shipment ID " + tube["sample_key_internal"] + " marked as being in shupment # " + tube["shipment_id"]);
+            				for (var sample in samples_excluding_shipped_tubes) {
+                				var sample_id = sample["key_internal"];
+								var tube_sample_id = tube["sample_key_internal"];
+	                   			if (sample_id === tube_sample_id) {
+									console.log("Number of aliquots in sample before: " + sample["aliquots"]);
+                        			sample["aliquots"]--;
+									console.log("Number of aliquots in sample after excluding: " + sample["aliquots"]);
+									if (sample["aliquots"] == 0) {
+									samples_depleted_to_splice.push(sample["key_internal"]);
+									}
+                        			break;
+                    			}
+                			}
+						}
+					}
 
 					//Finally, remove any sample records for which there are no available aliquots/tubes
 					//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
-//					for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
-//						for (var id in samples_depleted_to_splice) {
-///							if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
-//								samples_excluding_shipped_tubes.splice(i, 1);
-//							}
-//						}
-//					}
+					for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
+						for (var id in samples_depleted_to_splice) {
+							if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
+								samples_excluding_shipped_tubes.splice(i, 1);
+							}
+						}
+					}
 
 
         			this.setState({ 
