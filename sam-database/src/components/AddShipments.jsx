@@ -105,7 +105,7 @@ class AddShipments extends Component {
 				//make SQL query and retrieve all samples that match (or don't match?) filter
 		this.setState({ connectMsg: 'Created GET query' });
 		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve.php?" + getQuery;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
 		console.log(getReq)
 		filterReq = new XMLHttpRequest();
 		filterReq.open(
@@ -147,7 +147,7 @@ class AddShipments extends Component {
 
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Samples",
+			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Samples",
 			true
 		);
 		
@@ -164,13 +164,13 @@ class AddShipments extends Component {
 
 				request_tubes.open(
 					"GET",
-					"https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/retrieve_all.php?table=Tubes",
+					"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Tubes",
 					true
 				);
         
 				request_tubes.onload = function (e) {
 					if (request_tubes.readyState === 4 && request_tubes.status === 200) {
-						console.log("All clear");
+						console.log("All clear (tubes)");
 						console.log(request_tubes.responseText);
 						this.setState({ 
 							connectMsg: request_tubes.responseText,
@@ -178,47 +178,51 @@ class AddShipments extends Component {
 							tubesconnectionstatus: request_tubes.status, 
 						});
 
-			        //Now that both samples and tubes are loeaded, we need to remove any aliquots already in a shipment from consideration for a
-			        //new shiment.
+			        	//Now that both samples and tubes are loeaded, we need to remove any aliquots already in a shipment from consideration for a
+			        	//new shiment.
 
-					var samples_excluding_shipped_tubes = this.state.samples;
-					var samples_depleted_to_splice = [];
-
-        			for (var tube in this.state.tubes) {
-						var shipment_true = parseInt(tube["in_shipment"]);
-						if (shipment_true) {
-							console.log("Tube ID# " + tube["key_internal"] + " from shipment ID " + tube["sample_key_internal"] + " marked as being in shupment # " + tube["shipment_id"]);
-            				for (var sample in samples_excluding_shipped_tubes) {
-                				var sample_id = sample["key_internal"];
-								var tube_sample_id = tube["sample_key_internal"];
-	                   			if (sample_id === tube_sample_id) {
-									console.log("Number of aliquots in sample before: " + sample["aliquots"]);
-                        			sample["aliquots"]--;
-									console.log("Number of aliquots in sample after excluding: " + sample["aliquots"]);
-									if (sample["aliquots"] == 0) {
-									samples_depleted_to_splice.push(sample["key_internal"]);
-									}
-                        			break;
-                    			}
-                			}
-						}
-					}
-
-					//Finally, remove any sample records for which there are no available aliquots/tubes
-					//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
-					for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
-						for (var id in samples_depleted_to_splice) {
-							if (samples_excluding_shipped_tubes[i]["key_internal"] === id) {
-								samples_excluding_shipped_tubes.splice(i, 1);
+						var samples_excluding_shipped_tubes = this.state.samples;
+						var samples_depleted_to_splice = [];
+						
+						console.log("Stepping into loop...");
+        				for (var i = 0; i < this.state.tubes.length; i++) {
+							console.log("this.state.tubes once in loop: " + this.state.tubes);
+							console.log("in_shipment = " + this.state.tubes[i]["in_shipment"]);
+							if (this.state.tubes[i]["in_shipment"] == 1) {
+								console.log("Tube ID# " + this.state.tubes[i]["key_internal"] + " from shipment ID " + this.state.tubes[i]["sample_key_internal"] + " marked as being in shupment # " + this.state.tubes[i]["shipment_id"]);
+            					for (var j = 0; j < samples_excluding_shipped_tubes.length; j++) {
+                					var sample_id = samples_excluding_shipped_tubes[j]["key_internal"];
+									var tube_sample_id = this.state.tubes[i]["sample_key_internal"];
+	                   				if (sample_id === tube_sample_id) {
+										console.log("Number of aliquots in sample before: " + samples_excluding_shipped_tubes[j]["aliquots"]);
+                        				samples_excluding_shipped_tubes[j]["aliquots"]--;
+										console.log("Number of aliquots in sample after excluding: " + samples_excluding_shipped_tubes[j]["aliquots"]);
+										if (samples_excluding_shipped_tubes[j]["aliquots"] == 0) {
+											samples_depleted_to_splice.push(samples_excluding_shipped_tubes[j]["key_internal"]);
+											console.log("samples_depleted_to_splice=" + samples_depleted_to_splice);
+										}
+            	            			break;
+                	    			}
+                				}
 							}
 						}
-					}
+
+						//Finally, remove any sample records for which there are no available aliquots/tubes
+						//Potential bug? I'm not sure counting backwards over the index prevents the index from shifting as the array is spliced. Maybe have to do this in two steps.
+						for (var i = (samples_excluding_shipped_tubes.length - 1); i > -1; i--) {
+							for (var j = 0; j < samples_depleted_to_splice.length; j++) {
+								if (samples_excluding_shipped_tubes[i]["key_internal"] === samples_depleted_to_splice[j]) {
+									samples_excluding_shipped_tubes.splice(i, 1);
+									console.log("Removing the following depleted sample: " + samples_excluding_shipped_tubes[i]);
+								}
+							}
+						}
 
 
-        			this.setState({ 
-						samples: samples_excluding_shipped_tubes,
-						samplesvisible: samples_excluding_shipped_tubes,
-					});
+        				this.setState({ 
+							samples: samples_excluding_shipped_tubes,
+							samplesvisible: samples_excluding_shipped_tubes,
+						});
 
 
 					} else {
@@ -454,8 +458,8 @@ class AddShipments extends Component {
 					}
 				
 				//...aand here we're dealing with a situation where only SOME aliquots from a given sample are going in the shipment
-				} else if (this.state.numberAliquotsSelectedForShipment[i] < this.state.samplesToSelectAliquotsFrom[i]["aliquots"]
-                    && this.state.numberAliquotsSelectedForShipment[i] > 0) {
+				} else if ((this.state.numberAliquotsSelectedForShipment[i] < this.state.samplesToSelectAliquotsFrom[i]["aliquots"])
+                    && (this.state.numberAliquotsSelectedForShipment[i] > 0)) {
                     
                     var remaining_aliquots = this.state.samplesToSelectAliquotsFrom[i]["aliquots"] - this.state.numberAliquotsSelectedForShipment[i];
                     for (var j = 0; j < samples.length; j++) {
@@ -463,10 +467,15 @@ class AddShipments extends Component {
                         var aliquotsKey = this.state.samplesToSelectAliquotsFrom[i]["key_internal"];
                         
                         if (samplesKey === aliquotsKey) {
-                            samples[j]["aliquots"] = this.state.numberAliquotsSelectedForShipment[i];
-                            samplesToAdd.push(samples[j]);
+                            var add = Object.assign({},samples[j]);
+							console.log("Original aliquots in 'add': " + add["aliquots"]);
+							add["aliquots"] = this.state.numberAliquotsSelectedForShipment[i];
+							console.log("Adjusted aliquots in 'add': " + add["aliquots"]);
+							samplesToAdd.push(add);
+							console.log("Aliquots in pushed sample to right table BEFORE left table adjustment: " + samplesToAdd[samplesToAdd.length-1]["aliquots"]);
                             samples[j]["aliquots"] = remaining_aliquots;
-                        }
+							console.log("aliquots in pushed sample to right table AFTER left table adjustment: " + samplesToAdd[samplesToAdd.length-1]["aliquots"]);
+						}
                     }
                 } else { } 
 			    
@@ -538,17 +547,24 @@ class AddShipments extends Component {
 
 			if (areChecks) {
 				var indicesToSplice = [];
-				var samplesUpdated = this.state.samplesvisible;
+				var samples_updated = this.state.samplesvisible;
 				var shipmentUpdated = this.state.samplesadded;
 				
                 for (var i = 0; i < this.state.samplesadded.length; i++) {
 					if (this.state.checkedRowsShipment[i]) {
 						indicesToSplice.push(i);
-						samplesUpdated.push(this.state.samplesadded[i]);
+						for (var j = 0; j < samples_updated.length; j++) {
+							var samples_key = samples_updated[j]["key_internal"];
+							var shipment_key = this.state.samplesadded[i]["key_internal"];
+							if (samples_key === shipment_key) {
+								var total = parseInt(samples_updated[j]["aliquots"]) + parseInt(this.state.samplesadded[i]["aliquots"]);
+								samples_updated[j]["aliquots"] = total;
+							}
+						}
 					}
 				}
 			
-				samplesUpdated.sort(function(a, b) {
+				samples_updated.sort(function(a, b) {
 					var keyA = a["key_internal"];
 					var keyB = b["key_internal"];
 
@@ -560,7 +576,7 @@ class AddShipments extends Component {
 				}
 				
 				this.setState({ 
-					samples: samplesUpdated,
+					samples: samples_updated,
 					samplesadded: shipmentUpdated,
 					resetChecksShipment: true,
 				});
@@ -646,7 +662,7 @@ class AddShipments extends Component {
                 //shipment_tubes table (whichever makes sense)
 		
 		    var sendReq;
-			var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/dev/scripts/addshipment.php?" + getQuery;
+			var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addshipment.php?" + getQuery;
 		    console.log(getReq)
 		    sendReq = new XMLHttpRequest();
 		    sendReq.open(

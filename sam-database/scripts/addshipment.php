@@ -53,12 +53,16 @@ include "connect.php";
 			
 			//for num(x+1)
 			for ($y = 0; $y < (int)$_GET["num" . ($i + 1)]; $y++) {
-				//mark $tubeIDs[x] inshipment = true and shipmentid = id
-				//TODO: There's an error on this line having to do with accessing the tubeIDs array at index $y. Syntax must be off?
 				$tubeID = $tubeIDs[$y];
 				echo $tubeID;
 				$query = "UPDATE Tubes SET in_shipment=true, shipment_id=" . $id . " WHERE key_internal=" . $tubeID[0] . ";";
 				$conn->exec($query);
+				
+				//While we're at it, put the updated tube into the tube_shipments table
+				$query_shipment_tubes = "INSERT INTO `" . $db . "`.`Shipment_tubes` (`shipment_key_internal`,`tube_key_internal`) VALUES ('" . $id . "','" . $tubeID[0] . "');";
+				echo "shipment_tubes query: " . $query_shipment_tubes;
+
+				$conn->exec($query_shipment_tubes);
 			}
 			
 		}
