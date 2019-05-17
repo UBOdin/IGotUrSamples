@@ -656,7 +656,10 @@ class AddShipments extends Component {
                 "from=University at Buffalo&" + 
                 "to=" + this.state.to + "&" + 
                 "samples=" + this.state.samplesadded.length + "&" + 
-                sampleIDQuery + "&" + 
+                "shipping_conditions=" + this.state.shippingconditions + "&" +
+				"other_shipping_conditions=" + this.state.othershippingconditions + "&" + 
+				"notes=" + this.state.notes + "&" +
+				sampleIDQuery + "&" + 
                 numberSamplesQuery;
 			    //TODO: Add other queries to either shipment_batch table, or
                 //shipment_tubes table (whichever makes sense)

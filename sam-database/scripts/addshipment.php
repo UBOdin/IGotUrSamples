@@ -19,8 +19,9 @@ include "connect.php";
             }
 
 			//this catches the extra fields in the GET request
+			//TODO: this is going to be bug-prone in the future. consider checking for the numerals in the num and id queries instead.
 			if (($column[0] != "i" && $column[1] != "d") && 
-				($column[0] != "n" && $column[1] != "u")) {
+				($column[1] != "u")) {
 				$columns_string = $columns_string . "`" . $column . "`" . ', ';
 				$values_string = $values_string . "'" . $value . "'" . ', ';
 			}
