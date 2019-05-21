@@ -54,6 +54,7 @@ class ViewSamples extends Component {
 		request.onload = function (e) {
 			if (request.readyState === 4 && request.status === 200) {
 				console.log("All clear");
+				console.log(request.responseText);
 				this.setState({ 
 					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
