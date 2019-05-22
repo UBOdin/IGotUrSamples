@@ -33,7 +33,7 @@ class CustomTable extends Component {
 				isChecked = this.state.rowsCheckedState[j];
 			}
 		
-			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={isChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked}/>);
+			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={isChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked} onClick={this.props.click}/>);
         }
 	}	
 	
