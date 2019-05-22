@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Row, Col, Modal} from 'react-bootstrap';
+import { Button, Form, FormControl, InputGroup, Row, Col, Modal} from 'react-bootstrap';
 import CustomTable from './CustomTable';
+import CustomAlertBanner from './CustomAlertBanner';
 import Filter from './Filter';
+import DatePicker from 'react-datepicker'
 
 class ViewSamples extends Component {
 	constructor(props) {
@@ -89,8 +91,8 @@ class ViewSamples extends Component {
                         {this.state.samples.length} samples 
 					</Col>
                 </Row>
-                <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples} reset={false}/>
-                <SampleModal data={this.state.modalData} visible={this.state.showModal}
+                <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples} reset={false} click={this.clickRowCallback}/>
+                <SampleModal data={this.state.modalData} visible={this.state.showModal}/>
             </div>
     	)
 	};
@@ -548,6 +550,6 @@ class SampleModal extends Component {
 		sendReq.send();	
 	};
 }
-}
+
 
 export default ViewSamples;
