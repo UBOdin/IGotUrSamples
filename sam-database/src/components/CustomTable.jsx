@@ -1,5 +1,3 @@
-//TODO: implemented this.props.getCheckedStateFromTable
-
 import React, { Component } from 'react';
 import { Table, Form } from 'react-bootstrap';
 import Row from './Row';
@@ -26,6 +24,11 @@ class CustomTable extends Component {
 		this.props.getRows(this.state.rowsCheckedState);
 	}
 
+	clickRowCallback = (row) => {
+		console.log("CustomTable callback... ");
+		this.props.click(row);
+	}
+
 	drawRows(rows) {
 		for (var j = 0; j < this.props.numRows; j++) {
 			var isChecked = false;
@@ -33,7 +36,7 @@ class CustomTable extends Component {
 				isChecked = this.state.rowsCheckedState[j];
 			}
 		
-			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={isChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked} onClick={this.props.click}/>);
+			rows.push(<Row numCols={this.props.numCols} key={j} number={j} checked={isChecked} rowData={this.props.toPopulateWith[j]} headers={this.props.cols} checkCallback={this.isChecked} click={this.clickRowCallback}/>);
         }
 	}	
 	

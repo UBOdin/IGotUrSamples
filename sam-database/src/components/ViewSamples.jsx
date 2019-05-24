@@ -17,7 +17,7 @@ class ViewSamples extends Component {
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
 			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
 			returnedFilterValues: [],
-            modalData: [],
+            modal_number: 0,
             showModal: false,
  		}
 		this.addFilter = this.addFilter.bind(this);
@@ -38,8 +38,10 @@ class ViewSamples extends Component {
 	}
 
     clickRowCallback = (row) => {
-        this.setState({
-            modalData: this.state.samples[row],
+		console.log("Entered callback method.");
+		console.log(row);
+		this.setState({
+            modal_number: row,
             showModal: true,
         });
     }
@@ -92,9 +94,17 @@ class ViewSamples extends Component {
 					</Col>
                 </Row>
                 <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples} reset={false} click={this.clickRowCallback}/>
-                <SampleModal data={this.state.modalData} visible={this.state.showModal}/>
-            </div>
+				{this.drawModal()}
+			</div>
     	)
+	};
+
+	drawModal = () => {
+		if (this.state.samples.length > 0) {
+			return (
+				<SampleModal data={this.state.samples} number={this.state.modal_number} visible={this.state.showModal}/>
+			);
+		}
 	};
 
 	addFilter() {
@@ -199,29 +209,29 @@ class SampleModal extends Component {
     	super(props);
         this.state = {
             visible: this.props.visible,
-            id: this.props.data["id"],
-            eval: this.props.data["eval"],
-            date: this.props.data["date"],
-            hb: this.props.data["hb"],
-            pb: this.props.data["pb"],
-            density: this.props.data["density"],
-            type: this.props.data["type"],
-            aliquots: this.props.data["aliquots"],
-			initialstorageconditions: this.props.data["initialstorageconditions"],
-            bht: this.props.data["bht"],
-			edta: this.props.data["edta"],
-			heparin: this.props.data["heparin"],
-			mpa: this.props.data["mpa"],
-			foil: this.props.data["foil"],
-			othertreatments: this.props.data["othertreatments"],
-			consent: this.props.data["consent"],
+            id: this.props.data[this.props.number]["id"],
+            eval: this.props.data[this.props.number]["eval"],
+            date: this.props.data[this.props.number]["date"],
+            hb: this.props.data[this.props.number]["hb"],
+            pb: this.props.data[this.props.number]["pb"],
+            density: this.props.data[this.props.number]["density"],
+            type: this.props.data[this.props.number]["type"],
+            aliquots: this.props.data[this.props.number]["aliquots"],
+			initialstorageconditions: this.props.data[this.props.number]["initialstorageconditions"],
+            bht: this.props.data[this.props.number]["bht"],
+			edta: this.props.data[this.props.number]["edta"],
+			heparin: this.props.data[this.props.number]["heparin"],
+			mpa: this.props.data[this.props.number]["mpa"],
+			foil: this.props.data[this.props.number]["foil"],
+			othertreatments: this.props.data[this.props.number]["othertreatments"],
+			consent: this.props.data[this.props.number]["consent"],
 			alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
         }
     	this.handleChange = this.handleChange.bind(this);
-        this.save = this.save.bind(this);
-    }
+   		this.save = this.save.bind(this); 
+	}
 
 	handleChange(date) {
 		this.setState({
@@ -229,9 +239,13 @@ class SampleModal extends Component {
 		});
 	}
 
+	componentDidMount() {
+		console.log(this.props.data);
+	}
+
     render() {
         return (
-            <Modal size="lg" show={this.state.visible}>
+            <Modal size="lg" show={this.props.visible}>
                 <Modal.Header>
                     <Modal.Title>Edit sample</Modal.Title>
                 </Modal.Header>
@@ -239,7 +253,6 @@ class SampleModal extends Component {
                     {this.state.alertVisibility &&
                     <CustomAlertBanner variant={this.state.alertVariant} text={this.state.alertText}/>
                     }            
-                    <h3>Add samples:</h3>
                     <Row>
                 	    <Col>
                     	    <InputGroup className="mb-3">
@@ -426,7 +439,8 @@ class SampleModal extends Component {
 	
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="dark" size="lg" onClick={this.save}>
+						//TODO: Cancel button
+						<Button variant="dark" size="lg" onClick={this.save}>
                             Save
                         </Button>
                     </Modal.Footer>
@@ -494,21 +508,12 @@ class SampleModal extends Component {
         }
     }
 
-	getDateFormat = (date) => {
-		var formattedDate;
-		var yyyy = date.getFullYear();
-		var mm = String(date.getMonth() + 1).padStart(2, '0');
-		var dd = String(date.getDate()).padStart(2, '0');
-		formattedDate = yyyy + "-" + mm + "-" + dd;
-		return formattedDate;
-	}
-
 	send = () => {
 		var getQuery =
-            "key_internal=" + this.props.data["key_internal"] + "&" + 
+            "key_internal=" + this.props.data[this.props.number]["key_internal"] + "&" + 
             "id=" + this.state.id + "&" +
 			"eval=" + this.state.eval + "&" +
-			"date=" + this.getDateFormat(this.state.date) + "&" +
+			"date=" + this.state.date + "&" +
 			"hb=" + this.state.hb + "&" +
 			"pb=" + this.state.pb + "&" +
 			"density=" + this.state.density + "&" +
@@ -545,7 +550,7 @@ class SampleModal extends Component {
             	});
 				console.log(sendReq.responseText);
 			}
-		}
+		}.bind(this);
 
 		sendReq.send();	
 	};

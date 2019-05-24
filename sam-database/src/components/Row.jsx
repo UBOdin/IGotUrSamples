@@ -7,6 +7,11 @@ class Row extends Component {
 		this.props.checkCallback(this.props.number, e.target.checked);
 	}
 
+	handleClick = (e) => {
+		console.log("Clicked row #" + this.props.number);
+		this.props.click (this.props.number);
+	}
+
     render() {
 		const cols = [];
 		const rowData = this.props.rowData;
@@ -16,7 +21,7 @@ class Row extends Component {
 		}
 
         return (
-            <tr>
+            <tr onClick={this.handleClick}>
                 <td>
                     <Form.Check key={this.props.number} checked={this.props.checked} onChange={this.handleChange}/>
                 </td>
