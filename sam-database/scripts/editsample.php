@@ -42,25 +42,29 @@ include "connect.php";
 		} else if ((int)$aliquots_previous > (int)$_GET["aliquots"]) {
 			$difference = (int)$aliquots_previous - (int)$_GET["aliquots"];
 			$query = "DELETE FROM " . $table . " WHERE sample_key_internal=" . $sample_id . " LIMIT " . $difference . ";";
-
 			echo $query . "<br>";
 			$conn->exec($query);
-		} else {
+		
+        
+            if ((int)$_GET["aliquots"] == 0) {
+                $table = "Samples";
+                $query = "DELETE FROM " . $table . " WHERE key_internal='" .
+                $sample_id . "';";
+            }
+        } else {
 		}
 		
 		$table = "Samples";
-
+        $updates = "";
+    
 		//update sample entry with new information
 		foreach ($_GET as $column => $value) {
 			if ($column == "key_internal") {
 			} else {
-				$columns_string = $columns_string . $column . ', ';
-				$values_string = $values_string . "'" . $value . "'" . ', ';
+                $updates = $updates . " " . $column . "='" . $value . "',";
 			}
 		}
-		$columns_string = substr($columns_string, 0, -2) . ")";
-		$values_string = substr($values_string, 0, -2) . ")";
-		$query = "UPDATE " . $table . " SET " . $columns_string . " VALUES " . $values_string . " WHERE key_internal=" . $sample_id;
+		$query = "UPDATE " . $table . " SET" . substr($updates,0,-1) . " WHERE key_internal='" . $sample_id . "';";
 		
 		echo "query: " . $query . "<br>";
 		$conn->exec($query);

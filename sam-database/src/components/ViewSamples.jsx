@@ -17,9 +17,8 @@ class ViewSamples extends Component {
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
 			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
 			returnedFilterValues: [],
-            modal_number: 0,
-            showModal: false,
- 		}
+ 		    modal: [],
+        }
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
 		this.processFilter = this.processFilter.bind(this);
@@ -40,9 +39,9 @@ class ViewSamples extends Component {
     clickRowCallback = (row) => {
 		console.log("Entered callback method.");
 		console.log(row);
-		this.setState({
-            modal_number: row,
-            showModal: true,
+        var modalArray = [<SampleModal data={this.state.samples} number={row} visible={true}/>];
+        this.setState({
+            modal: modalArray,
         });
     }
 
@@ -94,20 +93,14 @@ class ViewSamples extends Component {
 					</Col>
                 </Row>
                 <CustomTable getRows={this.getRowsDefault} numCols={5} numRows={this.state.samples.length} cols={['ID','Eval','Date','Type','Aliquots','Notes']} toPopulateWith={this.state.samples} reset={false} click={this.clickRowCallback}/>
-				{this.drawModal()}
+				{this.state.modal}
 			</div>
     	)
 	};
 
-	drawModal = () => {
-		if (this.state.samples.length > 0) {
-			return (
-				<SampleModal data={this.state.samples} number={this.state.modal_number} visible={this.state.showModal}/>
-			);
-		}
-	};
 
-	addFilter() {
+	
+    addFilter() {
 		var newFilterArray = this.state.filters.concat(<Filter key={this.state.filters.length + 1} number={this.state.filters.length + 1} retVals={this.getFilterValues}/>);
 		this.setState({ filters: newFilterArray });
 	};
@@ -243,10 +236,16 @@ class SampleModal extends Component {
 		console.log(this.props.data);
 	}
 
+    closeModal = () => {
+        this.setState({
+           visible: false, 
+        });
+    }
+    
     render() {
         return (
-            <Modal size="lg" show={this.props.visible}>
-                <Modal.Header>
+            <Modal size="lg" show={this.state.visible} onHide={this.closeModal}>
+                <Modal.Header closeButton>
                     <Modal.Title>Edit sample</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -349,7 +348,7 @@ class SampleModal extends Component {
                         		    <InputGroup.Checkbox 
                             		    id="foil"
                             		    checked={this.state.foil}
-                            		    onChange={e => this.setState({foil: e.target.value})}/>
+                            		    onChange={e => this.setState({foil: e.target.checked})}/>
                     		    </InputGroup.Prepend>
                     		    <Form.Control value="Foil wrapping?" />
                     	    </InputGroup>
@@ -391,7 +390,7 @@ class SampleModal extends Component {
                         		    	<InputGroup.Checkbox 
                             		    	id="bht"
                             			    checked={this.state.bht}
-                            			    onChange={e => this.setState({bht: e.target.value})}/>
+                            			    onChange={e => this.setState({bht: e.target.checked})}/>
                     			    </InputGroup.Prepend>
                     			    <Form.Control value="BHT" />
                     		    </InputGroup>
@@ -400,7 +399,7 @@ class SampleModal extends Component {
                         			    <InputGroup.Checkbox 
                             			    id="edta"
                             			    checked={this.state.edta}
-                            			    onChange={e => this.setState({edta: e.target.value})}/>
+                            			    onChange={e => this.setState({edta: e.target.checked})}/>
                     			    </InputGroup.Prepend>
                     			    <Form.Control value="EDTA" />
                     		    </InputGroup>
@@ -409,7 +408,7 @@ class SampleModal extends Component {
                             			<InputGroup.Checkbox 
                                 			id="heparin"
                                 			checked={this.state.heparin}
-                                			onChange={e => this.setState({heparin: e.target.value})}/>
+                                			onChange={e => this.setState({heparin: e.target.checked})}/>
                         			</InputGroup.Prepend>
                     	    		<Form.Control value="Heparin" />
                     		    </InputGroup>
@@ -418,7 +417,7 @@ class SampleModal extends Component {
                             			<InputGroup.Checkbox 
                                 			id="mpa"
                                 			checked={this.state.mpa}
-                                			onChange={e => this.setState({mpa: e.target.value})}/>
+                                			onChange={e => this.setState({mpa: e.target.checked})}/>
                         			</InputGroup.Prepend>
                     	    		<Form.Control value="MPA" />
                     		    </InputGroup>
@@ -439,8 +438,10 @@ class SampleModal extends Component {
 	
                     </Modal.Body>
                     <Modal.Footer>
-						//TODO: Cancel button
-						<Button variant="dark" size="lg" onClick={this.save}>
+						<Button variant="secondary" size="lg" onClick={this.props.close}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" size="lg" onClick={this.save}>
                             Save
                         </Button>
                     </Modal.Footer>

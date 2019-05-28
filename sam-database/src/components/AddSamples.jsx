@@ -143,7 +143,7 @@ class AddSamples extends Component {
                         		<InputGroup.Checkbox 
                             		id="foil"
                             		checked={this.state.foil}
-                            		onChange={e => this.setState({foil: e.target.value})}/>
+                            		onChange={e => this.setState({foil: e.target.checked})}/>
                     		</InputGroup.Prepend>
                     		<Form.Control value="Foil wrapping?" />
                     	</InputGroup>
@@ -156,7 +156,7 @@ class AddSamples extends Component {
                         	<FormControl
                         		id="hb"
                             	value={this.state.hb}
-                                onChange={e => this.setState({hb: e.target.value})}/>
+                                onChange={e => this.setState({hb: e.target.checked})}/>
                         </InputGroup>
                         <InputGroup className="mb-3">
                             <InputGroup.Prepend>
@@ -165,7 +165,7 @@ class AddSamples extends Component {
                             <FormControl
                             	id="pb"
                                 value={this.state.pb}
-                                onChange={e => this.setState({pb: e.target.value})}/>
+                                onChange={e => this.setState({pb: e.target.checked})}/>
                         </InputGroup>
                         <InputGroup className="mb-3">
                         	<InputGroup.Prepend>
@@ -185,7 +185,7 @@ class AddSamples extends Component {
                         			<InputGroup.Checkbox 
                             			id="bht"
                             			checked={this.state.bht}
-                            			onChange={e => this.setState({bht: e.target.value})}/>
+                            			onChange={e => this.setState({bht: e.target.checked})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="BHT" />
                     		</InputGroup>
@@ -194,7 +194,7 @@ class AddSamples extends Component {
                         			<InputGroup.Checkbox 
                             			id="edta"
                             			checked={this.state.edta}
-                            			onChange={e => this.setState({edta: e.target.value})}/>
+                            			onChange={e => this.setState({edta: e.target.checked})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="EDTA" />
                     		</InputGroup>
@@ -203,7 +203,7 @@ class AddSamples extends Component {
                         			<InputGroup.Checkbox 
                             			id="heparin"
                             			checked={this.state.heparin}
-                            			onChange={e => this.setState({heparin: e.target.value})}/>
+                            			onChange={e => this.setState({heparin: e.target.checked})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="Heparin" />
                     		</InputGroup>
@@ -212,7 +212,7 @@ class AddSamples extends Component {
                         			<InputGroup.Checkbox 
                             			id="mpa"
                             			checked={this.state.mpa}
-                            			onChange={e => this.setState({mpa: e.target.value})}/>
+                            			onChange={e => this.setState({mpa: e.target.checked})}/>
                     			</InputGroup.Prepend>
                     			<Form.Control value="MPA" />
                     		</InputGroup>
