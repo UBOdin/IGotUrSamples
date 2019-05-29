@@ -25,16 +25,18 @@ include "connect.php";
 		$stmt->execute();
 
 		$aliquots_previous = $stmt->fetchAll(PDO::FETCH_CLASS, "x");
+        echo $aliquots_previous;
 
-        $table = "Tubes";
-
-		//delete sample if there are no more aliquots
 		if ((int)$_GET["aliquots"] == 0) {
 			$table = "Samples";
 			$query = "DELETE FROM " . $table . " WHERE key_internal='" . $sample_id . "';";
 
+            echo $query;
+
 			$conn->exec($query);
 		} else if ((int)$aliquots_previous != (int)$_GET["aliquots"]) {
+
+            $table = "Tubes";
 
 			if ((int)$aliquots_previous < (int)$_GET["aliquots"]) {
 			
@@ -53,11 +55,6 @@ include "connect.php";
 				$conn->exec($query);
 		
         
-    	        	if ((int)$_GET["aliquots"] == 0) {
-       		         	$table = "Samples";
-           		     	$query = "DELETE FROM " . $table . " WHERE key_internal='" .
-            		    $sample_id . "';";
-        	    	}
     	    } else {
 			}
 		} else {

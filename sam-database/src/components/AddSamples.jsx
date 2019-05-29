@@ -156,7 +156,7 @@ class AddSamples extends Component {
                         	<FormControl
                         		id="hb"
                             	value={this.state.hb}
-                                onChange={e => this.setState({hb: e.target.checked})}/>
+                                onChange={e => this.setState({hb: e.target.value})}/>
                         </InputGroup>
                         <InputGroup className="mb-3">
                             <InputGroup.Prepend>
@@ -165,7 +165,7 @@ class AddSamples extends Component {
                             <FormControl
                             	id="pb"
                                 value={this.state.pb}
-                                onChange={e => this.setState({pb: e.target.checked})}/>
+                                onChange={e => this.setState({pb: e.target.value})}/>
                         </InputGroup>
                         <InputGroup className="mb-3">
                         	<InputGroup.Prepend>
@@ -231,18 +231,40 @@ class AddSamples extends Component {
 
 				<hr />
 	
-                <div>
-                    <ButtonGroup>
-                        <Button variant="dark" size="lg" onClick={this.saveAndAddAnother}>
-                            Save and add another
+                <div>   
+                        <Button variant="outline-dark" size="lg" onClick={this.clearFields}>
+                            Clear
                         </Button>
-                        <Button variant="dark" size="lg" onClick={this.save}>
+                        <Button variant="outline-dark" size="lg" onClick={this.saveAndAddAnother}>
+                            Save and add another
+                        </Button> 
+                        <Button variant="primary" size="lg" onClick={this.save}>
                             Save
                         </Button>
-                    </ButtonGroup>
                 </div>
             </div>
         );
+    }
+
+    clearFields = () => {
+        this.setState({
+            id: '',
+            eval: '',
+            date: new Date(),
+            hb: '',
+            pb: '',
+            density: '',
+            type: '',
+            aliquots: '',
+            initialstorageconditions: '',
+        	bht: false,
+			edta: false,
+			heparin: false,
+			mpa: false,
+            foil: false,
+            othertreatments: '',
+			consent: '',
+        });
     }
 
     saveAndAddAnother = () => {
@@ -268,30 +290,11 @@ class AddSamples extends Component {
     }
 
     save = () => {
-        //TODO: Send data via POST to database
         var errors = this.validateForms();
 
         if (!errors) {
 			this.send();
-
-            this.setState({
-                id: '',
-                eval: '',
-                date: new Date(),
-                hb: '',
-                pb: '',
-                density: '',
-                type: '',
-                aliquots: '',
-                initialstorageconditions: '',
-            	bht: false,
-				edta: false,
-				heparin: false,
-				mpa: false,
-                foil: false,
-                othertreatments: '',
-				consent: '',
-            });
+            this.clearFields();
         }
     }
 
