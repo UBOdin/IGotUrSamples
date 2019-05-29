@@ -39,7 +39,7 @@ class ViewSamples extends Component {
     clickRowCallback = (row) => {
 		console.log("Entered callback method.");
 		console.log(row);
-        var modalArray = [<SampleModal data={this.state.samples} number={row} visible={true}/>];
+        var modalArray = this.state.modal.concat(<SampleModal data={this.state.samples} number={row} visible={true}/>);
         this.setState({
             modal: modalArray,
         });
@@ -438,7 +438,7 @@ class SampleModal extends Component {
 	
                     </Modal.Body>
                     <Modal.Footer>
-						<Button variant="secondary" size="lg" onClick={this.props.close}>
+						<Button variant="secondary" size="lg" onClick={this.closeModal}>
                             Cancel
                         </Button>
                         <Button variant="primary" size="lg" onClick={this.save}>
