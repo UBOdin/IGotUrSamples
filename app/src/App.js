@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-import Header from './components/Header';
+import { Navbar, Nav, Container, ButtonGroup } from 'react-bootstrap';
+import CustomHeaderButton from './components/CustomHeaderButton';
 import AddSamples from './components/AddSamples';
 import ViewSamples from './components/ViewSamples';
 import ViewShipments from './components/ViewShipments';
 import AddShipments from './components/AddShipments';
+
+/* The App class contains the Navbar and header buttons that appear on every
+ * page, plus a router div that switches between the other pages of the app as
+ * components.
+ */
 
 class App extends Component {
 	render() {
@@ -24,8 +29,16 @@ class App extends Component {
             	<Container fluid="true">
            			<Router basename=".">
                 		<div>
-            				<Header />
-							<Switch>
+      		                <ButtonGroup>
+        		                <CustomHeaderButton href="/AddSamples" text="Add Samples" />
+        		                <CustomHeaderButton href="/ViewSamples" text="Filter and Export" />
+        		                <CustomHeaderButton href="/AddShipments" text="Create a Shipment" />
+        		                <CustomHeaderButton href="/ViewShipments" text="See Shipments" />
+      		                </ButtonGroup>
+
+			                <hr />
+							
+                            <Switch>
                     			<Route path="/" exact={true} component={AddSamples} />
                     			<Route path="/AddSamples" component={AddSamples} />
                     			<Route path="/ViewSamples" component={ViewSamples} />

@@ -1,14 +1,24 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
 import CustomAlertBanner from './CustomAlertBanner'
-import DatePicker from 'react-datepicker'
 
+/* Note: DatePicker is an additional dependency, NOT included in
+ * react-bootstrap! Documentation can be found at https://reactdatepicker.com/
+ */
+import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
+/* AddSamples: this is the interface for entering new sample information into
+ * the database.
+ */
 class AddSamples extends Component {
 	constructor(props) {
     	super(props);
         this.state = {
+            /* This is where sample data entered into the fields are tracked,
+             * to be validated and sent to the database. The fields begin
+             * empty.
+             */
             id: '',
             eval: '',
             date: new Date(),
@@ -25,27 +35,35 @@ class AddSamples extends Component {
 			foil: false,
 			othertreatments: '',
 			consent: '',
-			alertVisibility: false,
+			/* These objects control the status of the alert banner at the top
+             * of the frame. These change when a problem is detected in the
+             * validate() method, or on a successful addition to the database
+             * in send()
+             */
+            alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
         }
-    	this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
         this.saveAndAddAnother = this.saveAndAddAnother.bind(this);
     }
 
-	handleChange(date) {
-		this.setState({
-			date: date,
-		});
-	}
-
     render() {
         return (
             <div>
+                
+                {
+                /* Alert banner (begins invisible) */
+                }
+                
                 {this.state.alertVisibility &&
                 <CustomAlertBanner variant={this.state.alertVariant} text={this.state.alertText}/>
                 }            
+
+                {
+                /* Sample data fields */
+                }
+
                 <h3>Add samples:</h3>
                 <Row>
                 	<Col>
@@ -76,7 +94,7 @@ class AddSamples extends Component {
 								className="form-control"
 								fixedHeight={false}
 								selected={this.state.date}
-								onChange={this.handleChange}
+								onChange={e => this.setState({date: e})}
 							/>
                         </InputGroup>
 						<InputGroup className="mb-3">
@@ -231,6 +249,11 @@ class AddSamples extends Component {
 
 				<hr />
 	
+                {
+                /*The main difference between 'Save' and 'Save and add another' is that 'Save and add another' leaves a few select fields still filled in after sending to the database, so other samples with shared information can be quickly added afterward.
+                 */
+                }
+
                 <div>   
                         <Button variant="outline-dark" size="lg" onClick={this.clearFields}>
                             Clear
@@ -245,34 +268,21 @@ class AddSamples extends Component {
             </div>
         );
     }
-
-    clearFields = () => {
-        this.setState({
-            id: '',
-            eval: '',
-            date: new Date(),
-            hb: '',
-            pb: '',
-            density: '',
-            type: '',
-            aliquots: '',
-            initialstorageconditions: '',
-        	bht: false,
-			edta: false,
-			heparin: false,
-			mpa: false,
-            foil: false,
-            othertreatments: '',
-			consent: '',
-        });
-    }
-
+    
+    /* This handles the special case where the researcher has another sample
+     * with similar values to enter afterward. It does the same things as
+     * Save() but leaves some of the fields uncleared afterward.
+     */
     saveAndAddAnother = () => {
         var errors = this.validateForms();
         
 		if (!errors) {
 			this.send();
-			
+	
+            /* This is a custom requested reset of only SOME fields, so the
+             * user can add another, similar sample without having to re-enter
+             * everything.
+             */
         	this.setState({
             	showAlert: true,
             	type: '',
@@ -289,6 +299,9 @@ class AddSamples extends Component {
 		}
     }
 
+    /* Validate the forms, then send data to the database and clear the fields
+     * for another entry.
+     */
     save = () => {
         var errors = this.validateForms();
 
@@ -298,6 +311,11 @@ class AddSamples extends Component {
         }
     }
 
+    /*This method checks the fields for invalid entries, displays a message by
+     * alerting the alert banner's message and visibility, and returns true if
+     * any errors are found. This should invariably be called and should return
+     * false BEFORE sending any data to the database.
+     */
     validateForms = () => {
         const numberFormatOneDigit = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
         const numberFormatTwoDigits = /^\(?([0-9]{2})\)?[.]?([0-9]{1})$/;
@@ -350,15 +368,9 @@ class AddSamples extends Component {
         }
     }
 
-	getDateFormat = (date) => {
-		var formattedDate;
-		var yyyy = date.getFullYear();
-		var mm = String(date.getMonth() + 1).padStart(2, '0');
-		var dd = String(date.getDate()).padStart(2, '0');
-		formattedDate = yyyy + "-" + mm + "-" + dd;
-		return formattedDate;
-	}
-
+    /* Send: creates a GET array with the (validated!) entries from the fields,
+     * and calls the addsamples.php script.
+     */
 	send = () => {
 		var getQuery =
 			"id=" + this.state.id + "&" +
@@ -404,6 +416,40 @@ class AddSamples extends Component {
 
 		sendReq.send();	
 	};
+	
+    /* Converts the Date object from the DatePicker field into a format that
+     * can be stored in the SQL database.
+     */
+    getDateFormat = (date) => {
+		var formattedDate;
+		var yyyy = date.getFullYear();
+		var mm = String(date.getMonth() + 1).padStart(2, '0');
+		var dd = String(date.getDate()).padStart(2, '0');
+		formattedDate = yyyy + "-" + mm + "-" + dd;
+		return formattedDate;
+	}
+    
+    /* Full reset of the fields. */
+    clearFields = () => {
+        this.setState({
+            id: '',
+            eval: '',
+            date: new Date(),
+            hb: '',
+            pb: '',
+            density: '',
+            type: '',
+            aliquots: '',
+            initialstorageconditions: '',
+        	bht: false,
+			edta: false,
+			heparin: false,
+			mpa: false,
+            foil: false,
+            othertreatments: '',
+			consent: '',
+        });
+    }
 }
 
 export default AddSamples;
