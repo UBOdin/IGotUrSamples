@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
+
+/* Dependency: react-datepicker */
 import DatePicker from 'react-datepicker'
 
+/* A filter is a single, duplicable row of fields where a 
+ * user can specify the type, value and equality condition 
+ * to use when filtering. */
 class Filter extends Component {
 	constructor(props) {
 		super(props);
+		/* The most important prop here is the retVals callback, 
+		 * which sends the user-selected filter information to the 
+		 * parent for processing. */
 		this.state = {
 			type: 'ID',
 			equality: true,
@@ -17,41 +25,6 @@ class Filter extends Component {
 		this.handleDateChange = this.handleDateChange.bind(this);
 	}
 
-	handleTypeChange(e) {
-		this.setState({
-			type: e.target.value,
-			value: '',
-		});
-		console.log("type changed to: " + e.target.value);
-		this.props.retVals(e.target.value, this.state.equality, this.state.value, this.props.number);
-
-	}
-
-	handleEquality(e) {
-		var equalityVal;
-		if (e.target.value === 'equals' ||
-			e.target.value === 'include' ) {
-			equalityVal = true;
-		} else if (e.target.value === 'does not equal' ||
-			e.target.value === 'do not include') {
-			equalityVal = false;
-		}
-
-		this.setState ({ equality: equalityVal });
-		this.props.retVals(this.state.type, equalityVal, this.state.value, this.props.number);
-	}
-
-	handleValueChange(e) {
-		this.setState({value: e.target.value});
-		this.props.retVals(this.state.type, this.state.equality, e.target.value, this.props.number);
-	}
-
-	handleDateChange(date) {
-		this.setState({
-			date: date,
-		});
-		this.props.retVals(this.state.type, this.state.equality, date, this.props.number);
-	}
 
 	render() {
 
@@ -188,6 +161,51 @@ class Filter extends Component {
 
 		)
 	};
+	
+	/* EVENT HANDLERS: */
+
+	/* When a user changes the type of 
+	 * data being filtered... */
+	handleTypeChange(e) {
+		this.setState({
+			type: e.target.value,
+			value: '',
+		});
+		console.log("type changed to: " + e.target.value);
+		this.props.retVals(e.target.value, this.state.equality, this.state.value, this.props.number);
+
+	}
+
+	/* When a user changes the equlity condition 
+	 * (either 'equals' or 'does not equal') */
+	handleEquality(e) {
+		var equalityVal;
+		if (e.target.value === 'equals' ||
+			e.target.value === 'include' ) {
+			equalityVal = true;
+		} else if (e.target.value === 'does not equal' ||
+			e.target.value === 'do not include') {
+			equalityVal = false;
+		}
+
+		this.setState ({ equality: equalityVal });
+		this.props.retVals(this.state.type, equalityVal, this.state.value, this.props.number);
+	}
+
+	/* When a user changes the value to filter... */
+	handleValueChange(e) {
+		this.setState({value: e.target.value});
+		this.props.retVals(this.state.type, this.state.equality, e.target.value, this.props.number);
+	}
+
+	/* Handles the special case of the user filtering 
+	 * by date (see the react-datepicker documentation). */
+	handleDateChange(date) {
+		this.setState({
+			date: date,
+		});
+		this.props.retVals(this.state.type, this.state.equality, date, this.props.number);
+	}
 
 }
 

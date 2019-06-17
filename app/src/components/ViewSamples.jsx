@@ -5,46 +5,32 @@ import CustomAlertBanner from './CustomAlertBanner';
 import Filter from './Filter';
 import DatePicker from 'react-datepicker'
 
+/* This is the 'Filter and Export' page--here the user can view available samples, add and 
+ * define any number of filters for that view, and export information to a CSV file for 
+ * further analysis. */
 class ViewSamples extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-        	//8 is arbitrary here, just to tell the difference between nothing back from db vs. initial state
-        	numRows: 8,
-			connectMsg: '',
+			/* Array of sample data from the database. */
 			samples: [],
-			connectionstatus: -1,
-			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
+
+			/* An array of filters, and another array for their returned values for processing. */
 			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
-			returnedFilterValues: [],
- 		    modal: [],
+			returnedFilterValues: [],i
+
+			/* State information about the table. */
+			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
+ 		    
+			/* Contents of the modal that pops up when the user clicks a sample for editing. */
+			modal: [],
         }
 		this.addFilter = this.addFilter.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
 		this.processFilter = this.processFilter.bind(this);
 	}
 
-	getFilterValues = (type, equality, value, key) => {
-		var filterVals = this.state.returnedFilterValues;
-		filterVals[key] = [type,equality,value];
-
-		this.setState({ returnedFilterValues: filterVals});
-		console.log(this.state.returnedFilterValues.toString());
-	};
-
-	//This is a placeholder function so the table component doesn't throw an error when there is no function for the getRows prop. In a later refactoring, this should go away and instead the CustomTable component should set an empty function by default.
-	getRowsDefault = () => {
-	}
-
-    clickRowCallback = (row) => {
-		console.log("Entered callback method.");
-		console.log(row);
-        var modalArray = this.state.modal.concat(<SampleModal data={this.state.samples} number={row} visible={true}/>);
-        this.setState({
-            modal: modalArray,
-        });
-    }
-
+	/* When the component mounts, retrieve the samples from the database. */
 	componentDidMount() {
 		var request;
 
@@ -56,21 +42,11 @@ class ViewSamples extends Component {
 		);
 		request.onload = function (e) {
 			if (request.readyState === 4 && request.status === 200) {
-				console.log("All clear");
-				console.log(request.responseText);
 				this.setState({ 
-					connectMsg: request.responseText,
 					samples: JSON.parse(request.responseText),
-					numRows: this.state.samples.length,
-					connectionstatus: request.status, 
 				});
 			} else {
 				console.error(request.statusText);
-				this.setState({
-					connectMsg: request.responseText,
-					numRows: this.state.samples.length,
-					connectionstatus: request.status,
-				});
 			}
 		}.bind(this);
 
@@ -99,12 +75,63 @@ class ViewSamples extends Component {
 	};
 
 
-	
-    addFilter() {
+	/* FILTER METHODS: */
+
+    /* Adds a new filter to the page upon user request. */
+	addFilter() {
 		var newFilterArray = this.state.filters.concat(<Filter key={this.state.filters.length + 1} number={this.state.filters.length + 1} retVals={this.getFilterValues}/>);
 		this.setState({ filters: newFilterArray });
 	};
+	
+	
+	/* Check to see if the filter's Type and Value aren't empty. 
+	 * ANOTHER REFACTORING OPPORTUNITY: this is the same processFilter() 
+	 * method in AddShipments, so the two of them should probably be 
+	 * moved to (and maintained in) just one location. */
+	processFilter() {
 
+		var getQuery = '';
+		//for each filter in the array, find the corresponding keyi
+		for (var i = 1; i <= this.state.filters.length; i++) {
+
+			if (i !== 1) {
+				getQuery = getQuery + '&';
+			}
+
+			//if type's not null (should never be!)
+			//if value's not null
+			if (this.state.returnedFilterValues[i][0] !== '' &&
+				this.state.returnedFilterValues[i][2] !== '') {
+
+				getQuery = getQuery 
+					+ 't' + i + '=' + this.state.returnedFilterValues[i][0] + '&'
+					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1] + '&'
+					+ 'v' + i + '=' + this.state.returnedFilterValues[i][2];
+			}
+		}
+		var filterReq;
+		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
+		filterReq = new XMLHttpRequest();
+		filterReq.open(
+			"GET",
+			getReq,
+			true
+		);
+		filterReq.onload = function (e) {
+			if (filterReq.readyState === 4 && filterReq.status === 200) {
+				this.setState({
+					samples: JSON.parse(filterReq.responseText),
+				});
+			} else {
+				console.error(filterReq.statusText);
+				this.setState({
+				});
+			}
+		}.bind(this);
+		filterReq.send();	
+	}
+
+	/* Export data in this.state.samples to CSV. */
 	exportToCSV() {
 		var element = document.createElement('a');
 
@@ -133,75 +160,46 @@ class ViewSamples extends Component {
 
 		document.body.removeChild(element);
 	}
+    
+	/*Callback method for filter components that sends the contents of the
+    * filter to this.state.filterVals. POTENTIAL REFACTORING OPPORTUNITY: 
+	* this method is the same as the one in AddShipments... perhaps it should
+	* be maintained in only one location and imported where needed?
+    */
+	getFilterValues = (type, equality, value, key) => {
+		var filterVals = this.state.returnedFilterValues;
+		  
+        if (type === "Date") {
+            value = this.getDateFormat(value);
+        }
 
-	processFilter() {
-		this.setState({ connectMsg: 'Reached processing method.'});
+        filterVals[key] = [type,equality,value];
 
-		var getQuery = '';
-		//for each filter in the array, find the corresponding keyi
-		for (var i = 1; i <= this.state.filters.length; i++) {
+		this.setState({ returnedFilterValues: filterVals});
+	};
 
-			if (i !== 1) {
-				getQuery = getQuery + '&';
-			}
+	//This is a placeholder function so the table component doesn't throw an error when there is no function for the getRows prop. In a later refactoring, this should go away and instead the CustomTable component should set an empty function by default.
+	getRowsDefault = () => {
+	}
 
-			//if type's not null (should never be!)
-			//if value's not null
-			if (this.state.returnedFilterValues[i][0] !== '' &&
-				this.state.returnedFilterValues[i][2] !== '') {
+    clickRowCallback = (row) => {
+        var modalArray = this.state.modal.concat(<SampleModal data={this.state.samples} number={row} visible={true}/>);
+        this.setState({
+            modal: modalArray,
+        });
+    }
 
-				getQuery = getQuery 
-					+ 't' + i + '=' + this.state.returnedFilterValues[i][0] + '&'
-					+ 'e' + i + '=' + this.state.returnedFilterValues[i][1] + '&'
-					+ 'v' + i + '=' + this.state.returnedFilterValues[i][2];
-			}
-		}
-				//make SQL query and retrieve all samples that match (or don't match?) filter
-		this.setState({ connectMsg: 'Created GET query' });
-		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
-		console.log(getReq)
-		filterReq = new XMLHttpRequest();
-		filterReq.open(
-			"GET",
-			getReq,
-			true
-		);
-		filterReq.onload = function (e) {
-			if (filterReq.readyState === 4 && filterReq.status === 200) {
-				console.log("All clear");
-				console.log(filterReq.responseText)
-				this.setState({
-					samples: JSON.parse(filterReq.responseText),
-					numRows: this.state.samples.length,
-					connectionstatus: filterReq.status,
-					connectmsg: filterReq.responseText
-				});
-			} else {
-				console.error(filterReq.statusText);
-				this.setState({
-					connectMsg: filterReq.responseText,
-					connectionstatus: filterReq.status,
-				});
-			}
-		}.bind(this);
-		this.setState({ connectMsg: 'About to send GET request' });
-		filterReq.send();	
-		}
-
-		
-	
 }
 
-//REFACTOR: this modal is mostly reused from the AddSamples component, without
-//an "add another" button and different save() function that updates an entry
-//instead of adds one. This could probably be refactored since so much of it is
-//reused.
+/* This modal pops up when the user clicks a row on the table, and includes options for editing the sample displayed in that row. The changes are validated and sent to the database. */
 class SampleModal extends Component {
 	constructor(props) {
     	super(props);
         this.state = {
-            visible: this.props.visible,
+			/* Controls modal visibility. */
+			visible: this.props.visible,
+
+			/* Fields for editing. */
             id: this.props.data[this.props.number]["id"],
             eval: this.props.data[this.props.number]["eval"],
             date: this.props.data[this.props.number]["date"],
@@ -218,6 +216,8 @@ class SampleModal extends Component {
 			foil: this.props.data[this.props.number]["foil"],
 			othertreatments: this.props.data[this.props.number]["othertreatments"],
 			consent: this.props.data[this.props.number]["consent"],
+			
+			/* Alert message states. */	
 			alertVisibility: false,
             alertText: 'Please enter all required fields.',
             alertVariant: 'danger',
@@ -226,22 +226,6 @@ class SampleModal extends Component {
    		this.save = this.save.bind(this); 
 	}
 
-	handleChange(date) {
-		this.setState({
-			date: date,
-		});
-	}
-
-	componentDidMount() {
-		console.log(this.props.data);
-	}
-
-    closeModal = () => {
-        this.setState({
-           visible: false, 
-        });
-    }
-    
     render() {
         return (
             <Modal size="lg" show={this.state.visible} onHide={this.closeModal}>
@@ -281,7 +265,7 @@ class SampleModal extends Component {
 								    className="form-control"
 								    fixedHeight={false}
 								    selected={this.state.date}
-								    onChange={this.handleChange}
+								onChange={e => this.setState({date: e})}
 							    />
                             </InputGroup>
 						    <InputGroup className="mb-3">
@@ -449,6 +433,16 @@ class SampleModal extends Component {
         );
     }
 
+    /* Makes the modal invisible on closing. */
+	closeModal = () => {
+        this.setState({
+           visible: false, 
+        });
+    }
+    
+    /* Validate the forms, then send data to the database and clear the fields
+     * for another entry.
+     */
     save = () => {
         var errors = this.validateForms();
 
@@ -457,6 +451,11 @@ class SampleModal extends Component {
         }
     }
 
+    /*This method checks the fields for invalid entries, displays a message by
+     * alerting the alert banner's message and visibility, and returns true if
+     * any errors are found. This should invariably be called and should return
+     * false BEFORE sending any data to the database.
+     */
     validateForms = () => {
         const numberFormatOneDigit = /^\(?([0-9]{1})\)?[.]?([0-9]{1})$/;
         const numberFormatTwoDigits = /^\(?([0-9]{2})\)?[.]?([0-9]{1})$/;
@@ -509,6 +508,9 @@ class SampleModal extends Component {
         }
     }
 
+    /* Send: creates a GET array with the (validated!) entries from the fields,
+     * and calls the editsamples.php script.
+     */
 	send = () => {
 		var getQuery =
             "key_internal=" + this.props.data[this.props.number]["key_internal"] + "&" + 
@@ -532,7 +534,6 @@ class SampleModal extends Component {
 		
 		var sendReq;
 		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/editsample.php?" + getQuery;
-		console.log(getReq)
 		sendReq = new XMLHttpRequest();
 		sendReq.open(
 			"GET",
@@ -541,20 +542,18 @@ class SampleModal extends Component {
 		);
 		sendReq.onload = function (e) {
 			if (sendReq.readyState === 4 && sendReq.status === 200) {
-				console.log("All clear");
-				console.log(sendReq.responseText);
 			} else {
             	this.setState({
                		alertVariant: 'danger',
                		alertText: "There was an error connecting to the database: " + sendReq.statusText,
                		alertVisibility: true,
             	});
-				console.log(sendReq.responseText);
 			}
 		}.bind(this);
 
 		sendReq.send();	
 	};
+
 }
 
 

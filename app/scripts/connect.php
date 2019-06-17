@@ -6,7 +6,7 @@ function connect() {
 
 	$host = "tethys.cse.buffalo.edu";
 	$db_name = "eehuruguayresearch_db";
-	$user = "blakecoo";
+	$user = "";
 	$password = getPassword();
 
 	try {
