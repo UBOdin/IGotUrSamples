@@ -60,9 +60,11 @@ class CustomTable extends Component {
                 <thead>
                     <tr>
                         <th width="3%">
+                        {
 							/* The 'select all' checkbox in the column header row is a 
 							 * special case of row checkboxes that we handle from the Table 
 							 * component. */
+                         }
                             <Form.Check 
 								id="selectall"
 								checked={isCheckedAll}

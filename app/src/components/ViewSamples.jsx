@@ -17,7 +17,7 @@ class ViewSamples extends Component {
 
 			/* An array of filters, and another array for their returned values for processing. */
 			filters: [<Filter key={1} number={1} retVals={this.getFilterValues}/>],
-			returnedFilterValues: [],i
+			returnedFilterValues: [],
 
 			/* State information about the table. */
 			headers: ['ID','Eval','Date','HB','PB','Density','Type','Aliquots','Initial storage conditions','Additives','Other treatments','Foil wrapped','Unrestricted consent'],
