@@ -402,15 +402,12 @@ class AddSamples extends Component {
 		);
 		sendReq.onload = function (e) {
 			if (sendReq.readyState === 4 && sendReq.status === 200) {
-				console.log("All clear");
-				console.log(sendReq.responseText);
 			} else {
             	this.setState({
                		alertVariant: 'danger',
                		alertText: "There was an error connecting to the database: " + sendReq.statusText,
                		alertVisibility: true,
             	});
-				console.log(sendReq.responseText);
 			}
 		}
 

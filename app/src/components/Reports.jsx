@@ -13,6 +13,7 @@ class Reports extends Component {
             returnedFilterValues: [],
             table: [],
             type: '',
+            eval: '',
             report: '',
             eval_div_visibility: 'hidden',
         }
@@ -124,8 +125,7 @@ class Reports extends Component {
 		  
         if (type === "Date") {
             value = this.getDateFormat(value);
-        }
-
+        } 
         filterVals[key] = [type,equality,value];
 
 		this.setState({ returnedFilterValues: filterVals});
@@ -145,11 +145,56 @@ class Reports extends Component {
     generateReport = () => {
         //choose the right headers
         //call the right script
+        var script_address = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_reports_";
+
+        if (this.state.report === 'ID') {
+            script_address = script_address + "samples_x_child.php";
+            this.setState({
+                headers: ['ID','Freq.','Percent','Cum.'],
+                    });
+        } else if (this.state.report === 'Eval') {
+            script_address = script_address + "samples_x_eval.php";
+            this.setState({
+                headers: ['Eval','Freq.','Percent','Cum.'],
+                    });
+        } else if (this.state.report === 'ID Eval') {
+            script_address = script_address + "eval_x_child.php";
+        } else if (this.state.report === 'ID if Eval = ') {
+            script_address = script_address + "id_x_eval_equals.php";
+            this.setState({
+                headers: ['ID','Freq.','Percent','Cum.'],
+                    });
+        } else {
+        }
+
+        script_address = script_address + "?type=" + this.state.type + "&eval=" + this.state.eval;
+
+        //send the request
+        var request;
+
+        request = new XMLHttpRequest();
+        request.open(
+            "GET",
+            script_address,
+            true,
+        );
+        request.onload = function (e) {
+            if (request.readyState === 4 && request.status === 200) {
+               this.setState({
+                reports: JSON.parse(request.responseText),
+                });
+            } else {
+                console.error(request.statusText);
+            }
+        }.bind(this);
+
+        request.send();
+
+        //if ID eval, need to count number of evals and update the table
+        //headers
         //erase any previous table
         //make the new table
     }
 }
-
-
 
 export default Reports;
