@@ -2,13 +2,12 @@
 
 ini_set("display_errors",1);
 include "connect.php";
-    //cycle through get array for type of sample (or just blood?)
-	$type = $_GET['type'];
+	
+    $type = $_GET['type'];
 
-    $query = "SELECT id, COUNT(*) AS frequency FROM Samples WHERE consent =
-    TRUE AND type = ";
+	$query = "SELECT id, eval FROM Samples WHERE consent = TRUE AND type = ";
 	$query = $query . $type;
-    $query = $query . " GROUP BY id ORDER BY id";
+	$query = $query . " GROUP BY id, eval ORDER BY id, eval";
 
 	$conn = connect();
 
@@ -27,3 +26,4 @@ include "connect.php";
 		echo "failed: " . $e->getMessage() . "<br>";
 	}
 ?>
+

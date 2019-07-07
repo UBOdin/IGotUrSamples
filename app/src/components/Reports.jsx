@@ -78,7 +78,6 @@ class Reports extends Component {
 					</Col>
                 </Row>
                 {this.state.table}
-                <CustomTable getRows={this.getRowsDefault} numCols={this.state.tableHeaders.length} numRows={this.state.records.length} cols={this.state.tableHeaders} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>
 			</div>
     	)
 	};
@@ -192,8 +191,12 @@ class Reports extends Component {
 
         //if ID eval, need to count number of evals and update the table
         //headers
+
         //erase any previous table
         //make the new table
+        this.setState({
+            table: [<CustomTable getRows={this.getRowsDefault} numCols={this.state.tableHeaders.length} numRows={this.state.records.length} cols={this.state.tableHeaders} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
+        });
     }
 }
 
