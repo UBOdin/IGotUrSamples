@@ -30,6 +30,7 @@ As of writing this (2019-06-17), this project went from conception to its curren
 
 * Fix bugs! There are a half-dozen or so bugs that I entered as issues in this GitHub repo. These should be addressed!
 * Spanish language localization - many of the researchers who will be using this site speak Spanish, so there should be a way for the site to determine where the user is logged in from and switch the site's language accordingly.
+* Refactor the php code in the 'app/scripts' folder - the original php functions had to be repurposed and altered as the project evolved over time. There is a lot of redundant code repurposed from place to place that could be consolidated into functions. 
 * Add sort functionality to the CustomTable components
 * Add a 'remove filter' button to the Filter components
 * Add a 'reset filters' button to components where filters are used (AddShipments and ViewSamples)
