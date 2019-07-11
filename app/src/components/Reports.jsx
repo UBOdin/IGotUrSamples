@@ -10,11 +10,11 @@ class Reports extends Component {
         this.state = {
             tableHeaders: [],
             records: [],
-            returnedFilterValues: [],
+			returnedFilterValues: [],
             table: [],
-            type: '',
-            eval: '',
-            report: '',
+			type: 'Blood',
+            eval: '1',
+            report: 'ID',
             eval_div_visibility: 'hidden',
         }
         this.handleReportChange = this.handleReportChange.bind(this);
@@ -149,19 +149,19 @@ class Reports extends Component {
         if (this.state.report === 'ID') {
             script_address = script_address + "samples_x_child.php";
             this.setState({
-                headers: ['ID','Freq.','Percent','Cum.'],
+                tableHeaders: ['ID','Frequency','Percent','Cum.'],
                     });
         } else if (this.state.report === 'Eval') {
             script_address = script_address + "samples_x_eval.php";
             this.setState({
-                headers: ['Eval','Freq.','Percent','Cum.'],
+                tableHeaders: ['Eval','Frequency','Percent','Cum.'],
                     });
         } else if (this.state.report === 'ID Eval') {
             script_address = script_address + "eval_x_child.php";
         } else if (this.state.report === 'ID if Eval = ') {
             script_address = script_address + "id_x_eval_equals.php";
             this.setState({
-                headers: ['ID','Freq.','Percent','Cum.'],
+                tableHeaders: ['ID','Frequency','Percent','Cum.'],
                     });
         } else {
         }
@@ -179,12 +179,51 @@ class Reports extends Component {
         );
         request.onload = function (e) {
             if (request.readyState === 4 && request.status === 200) {
-               this.setState({
-                reports: JSON.parse(request.responseText),
-                });
-            } else {
+               
+				this.setState({
+				records: JSON.parse(request.responseText),
+               });
+
+				var total = 0;
+				var runningTotal = 0;
+				var count, percent, cumulative = [];
+				/* If the record calls for a percentage, start by taking a count of frequency */
+				for (var headerIdx = 0; headerIdx < this.state.tableHeaders.length; headerIdx++) {
+					if (this.state.tableHeaders[headerIdx] === 'Percent') {
+						var numberRecords = this.state.records.length;
+						for (var record = 0; record < numberRecords; record++) {
+							count[record] = this.state.records[record]['frequency'];
+							total += this.state.records[record]['frequency'];
+						}		
+				
+						/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
+						for (var i = 0; i < count.length; i++) {
+							runningTotal += count[i];
+							percent[i] = (count[i] / total);
+							cumulative[i] = (runningTotal / total);
+						}
+
+						/* Finally, concatenate the percentages and cumulatives with the existing records */
+						var records = this.state.records;
+						for (var record = 0; record < records.length; record++) {
+							records[record]["percent"] = percent[record];
+							records[record]["cumulative"] = cumulative[record];
+						}
+
+						this.setState({ records: records });
+						console.log(this.state.records);
+					}
+				}
+
+
+
+        		this.setState({
+            		table: [<CustomTable getRows={this.getRowsDefault} numCols={this.state.tableHeaders.length} numRows={this.state.records.length} cols={this.state.tableHeaders} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
+        		});
+			} else {
                 console.error(request.statusText);
-            }
+            	console.error(script_address);
+			}
         }.bind(this);
 
         request.send();
@@ -194,9 +233,6 @@ class Reports extends Component {
 
         //erase any previous table
         //make the new table
-        this.setState({
-            table: [<CustomTable getRows={this.getRowsDefault} numCols={this.state.tableHeaders.length} numRows={this.state.records.length} cols={this.state.tableHeaders} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
-        });
     }
 }
 
