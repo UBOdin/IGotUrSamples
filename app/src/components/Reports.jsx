@@ -12,7 +12,7 @@ class Reports extends Component {
             records: [],
 			returnedFilterValues: [],
             table: [],
-			type: 'Blood',
+			type: '',
             eval: '1',
             report: 'ID',
             eval_div_visibility: 'hidden',
@@ -47,7 +47,8 @@ class Reports extends Component {
 						    <Form.Control as="select"
 							    value={this.state.type}
 						    onChange={(e) => {this.setState({type: e.target.value})}}>
-							    <option>Blood</option>
+							    <option></option>
+								<option>Blood</option>
 							    <option>Blood Spot</option>
                        		    <option>Dust</option> 
 							    <option>Hair</option>
@@ -149,19 +150,19 @@ class Reports extends Component {
         if (this.state.report === 'ID') {
             script_address = script_address + "samples_x_child.php";
             this.setState({
-                tableHeaders: ['ID','Frequency','Percent','Cum.'],
+                tableHeaders: ['ID','Frequency','Percent','Cumulative'],
                     });
         } else if (this.state.report === 'Eval') {
             script_address = script_address + "samples_x_eval.php";
             this.setState({
-                tableHeaders: ['Eval','Frequency','Percent','Cum.'],
+                tableHeaders: ['Eval','Frequency','Percent','Cumulative'],
                     });
         } else if (this.state.report === 'ID Eval') {
             script_address = script_address + "eval_x_child.php";
         } else if (this.state.report === 'ID if Eval = ') {
             script_address = script_address + "id_x_eval_equals.php";
             this.setState({
-                tableHeaders: ['ID','Frequency','Percent','Cum.'],
+                tableHeaders: ['ID','Frequency','Percent','Cumulative'],
                     });
         } else {
         }
@@ -179,37 +180,42 @@ class Reports extends Component {
         );
         request.onload = function (e) {
             if (request.readyState === 4 && request.status === 200) {
-               
+                console.log(script_address); 
 				this.setState({
 				records: JSON.parse(request.responseText),
                });
 
 				var total = 0;
-				var runningTotal = 0;
-				var count, percent, cumulative = [];
+				var cumulativeTotal = 0;
+				var count = [];
+				var percent = []; 
+				var cumulative = [];
 				/* If the record calls for a percentage, start by taking a count of frequency */
 				for (var headerIdx = 0; headerIdx < this.state.tableHeaders.length; headerIdx++) {
 					if (this.state.tableHeaders[headerIdx] === 'Percent') {
-						var numberRecords = this.state.records.length;
-						for (var record = 0; record < numberRecords; record++) {
-							count[record] = this.state.records[record]['frequency'];
-							total += this.state.records[record]['frequency'];
+						for (var record = 0; record < this.state.records.length; record++) {
+							count[record] = +this.state.records[record]['frequency'];
+							total = +total + +this.state.records[record]['frequency'];
+							console.log("count = " + count[record]);
+							console.log("total = " + total);
 						}		
 				
 						/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
 						for (var i = 0; i < count.length; i++) {
-							runningTotal += count[i];
-							percent[i] = (count[i] / total);
-							cumulative[i] = (runningTotal / total);
+							cumulativeTotal += count[i];
+							percent[i] = (count[i] / total).toFixed(4)*100;
+							cumulative[i] = (cumulativeTotal / total).toFixed(4)*100;
 						}
 
-						/* Finally, concatenate the percentages and cumulatives with the existing records */
+						/* Concatenate the percentages and cumulatives with the existing records */
 						var records = this.state.records;
 						for (var record = 0; record < records.length; record++) {
 							records[record]["percent"] = percent[record];
 							records[record]["cumulative"] = cumulative[record];
 						}
 
+						/* Add a row for totals. */
+						records.push({id:"Total",frequency:cumulativeTotal, percent:records[records.length-1]["cumulative"], cumulative:records[records.length-1]["cumulative"]});
 						this.setState({ records: records });
 						console.log(this.state.records);
 					}
