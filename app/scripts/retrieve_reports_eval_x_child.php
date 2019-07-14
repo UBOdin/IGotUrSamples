@@ -5,9 +5,9 @@ include "connect.php";
 	
     $type = $_GET['type'];
 
-	$query = "SELECT id, eval FROM Samples WHERE consent = TRUE AND type = ";
+	$query = "SELECT id, eval FROM Samples WHERE unrestrictedconsent = TRUE AND type = '";
 	$query = $query . $type;
-	$query = $query . " GROUP BY id, eval ORDER BY id, eval";
+	$query = $query . "' GROUP BY id, eval ORDER BY id, eval";
 
 	$conn = connect();
 
@@ -26,4 +26,3 @@ include "connect.php";
 		echo "failed: " . $e->getMessage() . "<br>";
 	}
 ?>
-

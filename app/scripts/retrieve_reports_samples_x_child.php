@@ -2,8 +2,8 @@
 
 ini_set("display_errors",1);
 include "connect.php";
-    //cycle through get array for type of sample (or just blood?)
-	$type = $_GET['type'];
+	
+    $type = $_GET['type'];
 
     $query = "SELECT id, COUNT(*) AS frequency FROM Samples WHERE unrestrictedconsent = TRUE AND type = '";
 	$query = $query . $type;

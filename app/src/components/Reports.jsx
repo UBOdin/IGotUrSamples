@@ -12,7 +12,7 @@ class Reports extends Component {
             records: [],
 			returnedFilterValues: [],
             table: [],
-			type: '',
+			type: 'Blood',
             eval: '1',
             report: 'ID',
             eval_div_visibility: 'hidden',
@@ -47,7 +47,6 @@ class Reports extends Component {
 						    <Form.Control as="select"
 							    value={this.state.type}
 						    onChange={(e) => {this.setState({type: e.target.value})}}>
-							    <option></option>
 								<option>Blood</option>
 							    <option>Blood Spot</option>
                        		    <option>Dust</option> 
@@ -181,7 +180,8 @@ class Reports extends Component {
         request.onload = function (e) {
             if (request.readyState === 4 && request.status === 200) {
                 console.log(script_address); 
-				this.setState({
+                console.log(request.responseText);
+                this.setState({
 				records: JSON.parse(request.responseText),
                });
 
@@ -214,7 +214,8 @@ class Reports extends Component {
 							records[record]["cumulative"] = cumulative[record];
 						}
 
-						/* Add a row for totals. */
+						/* Add a row for totals. 
+                           TODO: put this in a separate line below, as opposed to in the record. */
 						records.push({id:"Total",frequency:cumulativeTotal, percent:records[records.length-1]["cumulative"], cumulative:records[records.length-1]["cumulative"]});
 						this.setState({ records: records });
 						console.log(this.state.records);
