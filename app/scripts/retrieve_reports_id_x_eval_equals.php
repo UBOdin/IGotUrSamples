@@ -6,12 +6,11 @@ include "connect.php";
     $type = $_GET['type'];
     $eval = $_GET['eval'];
 
-    $query = "SELECT id, COUNT(*) AS frequency FROM Samples WHERE consent =
-    TRUE AND type = ";
+    $query = "SELECT id, COUNT(*) AS frequency FROM Samples WHERE unrestrictedconsent = TRUE AND type = '";
 	$query = $query . $type;
-    $query = $query . " AND eval = "
+    $query = $query . "' AND eval = '";
     $query = $query . $eval;
-    $query = $query . " GROUP BY id ORDER BY id";
+    $query = $query . "' GROUP BY id ORDER BY id";
 
 	$conn = connect();
 

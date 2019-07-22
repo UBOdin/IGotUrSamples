@@ -388,8 +388,13 @@ class AddSamples extends Component {
 			"mpa=" + this.state.mpa + "&" +
 			"foilwrapped=" + this.state.foil + "&" +
 			"othertreatments=" + this.state.othertreatments + "&" +
-			"unrestrictedconsent=" + this.state.consent;
-		
+			"unrestrictedconsent=";
+			
+			if (this.state.consent === "Yes") {
+				getQuery = getQuery + "1";
+			} else {
+				getQuery = getQuery + "0";
+			}
 		
 		var sendReq;
 		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addsamples.php?" + getQuery;

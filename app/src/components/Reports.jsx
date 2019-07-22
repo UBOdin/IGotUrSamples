@@ -15,12 +15,31 @@ class Reports extends Component {
 			type: 'Blood',
             eval: '1',
             report: 'ID',
-            eval_div_visibility: 'hidden',
+            eval_div_visible: true,
         }
         this.handleReportChange = this.handleReportChange.bind(this);
+		this.evalField = this.evalField.bind(this);
 	}
 
 	componentDidMount() {
+	}
+
+	evalField() {
+		if (this.state.eval_div_visible) {
+			return (	
+				<InputGroup className="mb-3">
+              		<InputGroup.Prepend>
+                   		<InputGroup.Text>Eval number:</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl 
+                  		id="eval"
+                  		value={this.state.eval}
+                   		onChange={e => this.setState({eval: e.target.value})}/>
+               	</InputGroup>
+			);
+		} else {
+			return null;
+		}
 	}
 
 	render() {
@@ -30,7 +49,7 @@ class Reports extends Component {
                 <Col>
                     <Row>
 				        Report type: 
-                        <Form.Group controlID="report">
+                        <Form.Group controlid="report">
                             <Form.Control as="select"
                                 value={this.state.report}
                             onChange={this.handleReportChange}>
@@ -62,12 +81,8 @@ class Reports extends Component {
                 </Col>
                 <Col>
                     <Row>
-                        <div style={{visibility:this.state.eval_div_visibility}}>
-                            Eval number: 
-                            <Form.Group controlId="eval">
-                            </Form.Group>
-                        </div>
-                    </Row>
+						{this.evalField()}
+					</Row>
                     <Row>
                     </Row>
                 </Col>
@@ -135,14 +150,25 @@ class Reports extends Component {
 	}
 
     handleReportChange(e) {
-        this.setState({report: e.target.value});
-        if (e.target.value === 'ID if Eval = ') {
-            this.setState({eval_div_visibility: 'visible'});
-        }
+
+		//Make the Eval field visible if the user selects "ID if Eval = " 
+		var eval_visible = false;
+
+        if (e.target.value === "ID if Eval =") {
+            eval_visible = true;
+		}
+        
+		this.setState({
+			report: e.target.value,
+			eval_div_visible: eval_visible,
+		});
+		
+		console.log("e.target.value = " + e.target.value);
+		console.log("this.state.report = " + this.state.report);
+		console.log("Show div? " + this.state.eval_div_visible);
     }
 
     generateReport = () => {
-        //choose the right headers
         //call the right script
         var script_address = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_reports_";
 
@@ -158,7 +184,7 @@ class Reports extends Component {
                     });
         } else if (this.state.report === 'ID Eval') {
             script_address = script_address + "eval_x_child.php";
-        } else if (this.state.report === 'ID if Eval = ') {
+        } else if (this.state.report === "ID if Eval =") {
             script_address = script_address + "id_x_eval_equals.php";
             this.setState({
                 tableHeaders: ['ID','Frequency','Percent','Cumulative'],
@@ -203,15 +229,15 @@ class Reports extends Component {
 						/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
 						for (var i = 0; i < count.length; i++) {
 							cumulativeTotal += count[i];
-							percent[i] = (count[i] / total).toFixed(4)*100;
-							cumulative[i] = (cumulativeTotal / total).toFixed(4)*100;
+							percent[i] = (count[i] / total);
+							cumulative[i] = (cumulativeTotal / total);
 						}
 
 						/* Concatenate the percentages and cumulatives with the existing records */
 						var records = this.state.records;
 						for (var record = 0; record < records.length; record++) {
-							records[record]["percent"] = percent[record];
-							records[record]["cumulative"] = cumulative[record];
+							records[record]["percent"] = Math.round(percent[record]*100);
+							records[record]["cumulative"] = Math.round(cumulative[record]*100);
 						}
 
 						/* Add a row for totals. 
