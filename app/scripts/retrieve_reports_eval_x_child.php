@@ -7,7 +7,7 @@ include "connect.php";
 
 	$query = "SELECT id, eval FROM Samples WHERE unrestrictedconsent = TRUE AND type = '";
 	$query = $query . $type;
-	$query = $query . "' GROUP BY id, eval ORDER BY id, eval";
+	$query = $query . "' ORDER BY id, eval";
 
 	$conn = connect();
 

@@ -8,7 +8,6 @@ class Reports extends Component {
 	constructor(props) {
 		super(props);
         this.state = {
-            tableHeaders: [],
             records: [],
 			returnedFilterValues: [],
             table: [],
@@ -172,23 +171,20 @@ class Reports extends Component {
         //call the right script
         var script_address = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_reports_";
 
+		//Wipe the table headers and prepare to repopulate
+		var headers = [];
         if (this.state.report === 'ID') {
             script_address = script_address + "samples_x_child.php";
-            this.setState({
-                tableHeaders: ['ID','Frequency','Percent','Cumulative'],
-                    });
+            headers = ['ID','Frequency','Percent','Cumulative'];
         } else if (this.state.report === 'Eval') {
             script_address = script_address + "samples_x_eval.php";
-            this.setState({
-                tableHeaders: ['Eval','Frequency','Percent','Cumulative'],
-                    });
+            headers = ['Eval','Frequency','Percent','Cumulative'];
         } else if (this.state.report === 'ID Eval') {
             script_address = script_address + "eval_x_child.php";
+			headers = ['ID'];
         } else if (this.state.report === "ID if Eval =") {
             script_address = script_address + "id_x_eval_equals.php";
-            this.setState({
-                tableHeaders: ['ID','Frequency','Percent','Cumulative'],
-                    });
+            headers = ['ID','Frequency','Percent','Cumulative'];
         } else {
         }
 
@@ -216,42 +212,83 @@ class Reports extends Component {
 				var count = [];
 				var percent = []; 
 				var cumulative = [];
-				/* If the record calls for a percentage, start by taking a count of frequency */
-				for (var headerIdx = 0; headerIdx < this.state.tableHeaders.length; headerIdx++) {
-					if (this.state.tableHeaders[headerIdx] === 'Percent') {
-						for (var record = 0; record < this.state.records.length; record++) {
-							count[record] = +this.state.records[record]['frequency'];
-							total = +total + +this.state.records[record]['frequency'];
-							console.log("count = " + count[record]);
-							console.log("total = " + total);
-						}		
+				var eval_number = [];
+				var data_by_eval = [];
+
+				//The "ID Eval" report is a unique case... the table needs to know how many Evals there are in order to print the right number of columns. Here we organize the data from the database so that can easily be infered, and then from there build the headers
+				if (this.state.report === 'ID Eval') {
+					for (var current_record of this.state.records) {
+						var foundIt = false;
+						if (data_by_eval.length > 0) {
+							for (var new_record of data_by_eval) {
+								var prop = "eval" + current_record.eval;
+								console.log("Iterating over record with ID " + current_record.id);
+								if (current_record.id === new_record.id) {	
+								console.log("current value of " + prop + ": " + new_record[prop]);
+									if (new_record[prop] === "undefined") {
+										new_record[prop] = 1;
+									} else {
+										new_record[prop] += 1;
+									}
+									eval_number[current_record.eval] += 1;
+									foundIt = true;
+									total += 1;
+									break;
+								}
+							}
+						}
+						
+						if (!foundIt) {
+							var new_row = {id:current_record.id};
+							new_row["eval" + current_record.eval] = 1;
+							data_by_eval.push(new_row);
+							total += 1;	
+							eval_number[current_record.eval] += 1;
+						}
+					}
+					
+					console.log(data_by_eval);
+					this.setState({records: data_by_eval});
+					for (var i = 0; i < eval_number.length; i++) {
+						headers.push("Eval" + (i + 1));
+					}
+				} else {
+					//This process of checking for the right headers is no longer needed... but one thing at a time.
+					for (var headerIdx = 0; headerIdx < headers.length; headerIdx++) {
+						if (headers[headerIdx] === 'Percent') {
+							for (var record = 0; record < this.state.records.length; record++) {
+								count[record] = +this.state.records[record]['frequency'];
+								total = +total + +this.state.records[record]['frequency'];
+								console.log("count = " + count[record]);
+								console.log("total = " + total);
+							}		
 				
-						/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
-						for (var i = 0; i < count.length; i++) {
-							cumulativeTotal += count[i];
-							percent[i] = (count[i] / total);
-							cumulative[i] = (cumulativeTotal / total);
-						}
+							/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
+							for (var i = 0; i < count.length; i++) {
+								cumulativeTotal += count[i];
+								percent[i] = (count[i] / total);
+								cumulative[i] = (cumulativeTotal / total);
+							}
+	
+							/* Concatenate the percentages and cumulatives with the existing records */
+							var records = this.state.records;
+							for (var record = 0; record < records.length; record++) {
+								records[record]["percent"] = (percent[record]*100).toFixed(2);
+								records[record]["cumulative"] = (cumulative[record]*100).toFixed(2);
+							}
 
-						/* Concatenate the percentages and cumulatives with the existing records */
-						var records = this.state.records;
-						for (var record = 0; record < records.length; record++) {
-							records[record]["percent"] = Math.round(percent[record]*100);
-							records[record]["cumulative"] = Math.round(cumulative[record]*100);
+							/* Add a row for totals. 
+    	                       TODO: put this in a separate line below, as opposed to in the record. */
+							records.push({id:"Total",frequency:cumulativeTotal, percent:records[records.length-1]["cumulative"], cumulative:records[records.length-1]["cumulative"]});
+							this.setState({ records: records });
+							console.log(this.state.records);
 						}
-
-						/* Add a row for totals. 
-                           TODO: put this in a separate line below, as opposed to in the record. */
-						records.push({id:"Total",frequency:cumulativeTotal, percent:records[records.length-1]["cumulative"], cumulative:records[records.length-1]["cumulative"]});
-						this.setState({ records: records });
-						console.log(this.state.records);
 					}
 				}
 
 
-
         		this.setState({
-            		table: [<CustomTable getRows={this.getRowsDefault} numCols={this.state.tableHeaders.length} numRows={this.state.records.length} cols={this.state.tableHeaders} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
+            		table: [<CustomTable getRows={this.getRowsDefault} numCols={headers.length} numRows={this.state.records.length} cols={headers} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
         		});
 			} else {
                 console.error(request.statusText);
