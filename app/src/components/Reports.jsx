@@ -11,7 +11,7 @@ class Reports extends Component {
             records: [],
 			returnedFilterValues: [],
             table: [],
-			type: 'Blood',
+			type: 'All',
             eval: '1',
             report: 'ID',
             eval_div_visible: true,
@@ -188,7 +188,15 @@ class Reports extends Component {
         } else {
         }
 
-        script_address = script_address + "?type=" + this.state.type + "&eval=" + this.state.eval;
+		//Allow for wildcard in SQL retrieval
+		var type;
+		if (this.state.type === "All") {
+			type = '*';
+		} else {
+			type = this.state.type;
+		}
+
+        script_address = script_address + "?type=" + type + "&eval=" + this.state.eval;
 
         //send the request
         var request;
@@ -217,6 +225,8 @@ class Reports extends Component {
 
 				//The "ID Eval" report is a unique case... the table needs to know how many Evals there are in order to print the right number of columns. Here we organize the data from the database so that can easily be infered, and then from there build the headers
 				if (this.state.report === 'ID Eval') {
+					//TODO: use this variable to track totals for each eval, in order to include them at the bottom like the other reports
+					var cumulative_eval_totals = [];
 					for (var current_record of this.state.records) {
 						var foundIt = false;
 						if (data_by_eval.length > 0) {
@@ -225,7 +235,7 @@ class Reports extends Component {
 								console.log("Iterating over record with ID " + current_record.id);
 								if (current_record.id === new_record.id) {	
 								console.log("current value of " + prop + ": " + new_record[prop]);
-									if (new_record[prop] === "undefined") {
+									if (typeof new_record[prop] === "undefined") {
 										new_record[prop] = 1;
 									} else {
 										new_record[prop] += 1;
@@ -247,11 +257,25 @@ class Reports extends Component {
 						}
 					}
 					
+					//add up totals and add 0s to empty evals
+					for (var record of data_by_eval) {
+						var total = 0;
+						for (var i = 1; i < eval_number.length; i++) {
+							if (typeof record["eval" + i] === "undefined") {
+								record["eval" + i] = 0;
+							} else {
+								total += record["eval" + i];
+							}
+						}
+						record["total"] = total;
+					}
+
 					console.log(data_by_eval);
 					this.setState({records: data_by_eval});
-					for (var i = 0; i < eval_number.length; i++) {
-						headers.push("Eval" + (i + 1));
+					for (var i = 1; i < eval_number.length; i++) {
+						headers.push("Eval" + i);
 					}
+					headers.push("Total");
 				} else {
 					//This process of checking for the right headers is no longer needed... but one thing at a time.
 					for (var headerIdx = 0; headerIdx < headers.length; headerIdx++) {
