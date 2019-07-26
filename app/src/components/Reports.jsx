@@ -10,6 +10,7 @@ class Reports extends Component {
         this.state = {
             records: [],
 			returnedFilterValues: [],
+			headers: [],
             table: [],
 			type: 'All',
             eval: '1',
@@ -17,6 +18,7 @@ class Reports extends Component {
             eval_div_visible: true,
         }
         this.handleReportChange = this.handleReportChange.bind(this);
+		this.exportToCSV = this.exportToCSV.bind(this);
 		this.evalField = this.evalField.bind(this);
 	}
 
@@ -65,6 +67,7 @@ class Reports extends Component {
 						    <Form.Control as="select"
 							    value={this.state.type}
 						    onChange={(e) => {this.setState({type: e.target.value})}}>
+								<option>All</option>
 								<option>Blood</option>
 							    <option>Blood Spot</option>
                        		    <option>Dust</option> 
@@ -86,6 +89,7 @@ class Reports extends Component {
                     </Row>
                 </Col>
                 <Button variant="dark" size="lg" onClick={this.generateReport}>Report</Button>
+				<Button variant="dark" size="lg" onClick={this.exportToCSV}>Export</Button>
 				<hr />
 				<Row>
                     <Col align="right">
@@ -227,6 +231,8 @@ class Reports extends Component {
 				if (this.state.report === 'ID Eval') {
 					//TODO: use this variable to track totals for each eval, in order to include them at the bottom like the other reports
 					var cumulative_eval_totals = [];
+					var cumulative_total = 0;
+
 					for (var current_record of this.state.records) {
 						var foundIt = false;
 						if (data_by_eval.length > 0) {
@@ -257,6 +263,9 @@ class Reports extends Component {
 						}
 					}
 					
+					//This is the row with the totals for each eval, plus the total of totals
+					var total_row = ({id:"Total"});
+					
 					//add up totals and add 0s to empty evals
 					for (var record of data_by_eval) {
 						var total = 0;
@@ -265,11 +274,24 @@ class Reports extends Component {
 								record["eval" + i] = 0;
 							} else {
 								total += record["eval" + i];
+								if (typeof total_row["eval" + i] === "undefined") {
+									total_row["eval" + i] = 1;
+								} else {
+									total_row["eval" + i] += record["eval" + i];
+								}
 							}
 						}
 						record["total"] = total;
+						if (typeof total_row["total"] === "undefined") {
+							total_row["total"] = total;
+						} else {
+							total_row["total"] += total;
+						}
 					}
 
+
+					//Add totals row
+					data_by_eval.push(total_row);
 					console.log(data_by_eval);
 					this.setState({records: data_by_eval});
 					for (var i = 1; i < eval_number.length; i++) {
@@ -312,8 +334,9 @@ class Reports extends Component {
 
 
         		this.setState({
-            		table: [<CustomTable getRows={this.getRowsDefault} numCols={headers.length} numRows={this.state.records.length} cols={headers} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>]
-        		});
+            		table: [<CustomTable getRows={this.getRowsDefault} numCols={headers.length} numRows={this.state.records.length} cols={headers} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>],
+        			headers: headers,
+				});
 			} else {
                 console.error(request.statusText);
             	console.error(script_address);
@@ -328,6 +351,36 @@ class Reports extends Component {
         //erase any previous table
         //make the new table
     }
+	/* Export data in this.state.samples to CSV. */
+	exportToCSV() {
+		var element = document.createElement('a');
+
+		var data = '';
+		for (var header of this.state.headers) {
+			data = data + header + ',';
+		}
+
+		for (var i = 0; i < this.state.records.length; i++) {
+
+			for (var key in this.state.records[i]) {
+				if (this.state.records[i].hasOwnProperty(key)) {
+					data = data + this.state.records[i][key] + ', ';
+				}
+			}
+			
+			data = data + '\n';
+		}
+
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+		element.setAttribute('download', 'export.csv');
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
 }
 
 export default Reports;
