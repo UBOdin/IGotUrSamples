@@ -36,6 +36,7 @@ As of writing this (2019-06-17), this project went from conception to its curren
 * Add a 'reset filters' button to components where filters are used (AddShipments and ViewSamples)
 * Change the GET requests to the database throughout to POST requests for greater security
 * Add 'undo' functionality to user actions throughout (particularly those that alter the database)
+* Write a help document for the end user (A template for one is in the repo)
 
 ## ...good luck!
 
