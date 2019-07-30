@@ -1,46 +1,31 @@
 import React, { Component } from 'react';
-import { Button, Form, FormControl, InputGroup, Row, Col, Modal} from 'react-bootstrap';
+import { Button, Form, FormControl, InputGroup, Row, Col} from 'react-bootstrap';
 import CustomTable from './CustomTable';
-import CustomAlertBanner from './CustomAlertBanner';
-import Filter from './Filter';
 
+
+/* On the 'Reports' page, a set of pre-defined reports based on the database can be generated and exported, per the clients request. */
 class Reports extends Component {
 	constructor(props) {
 		super(props);
         this.state = {
+			/* The raw records returned by the various SQL queries */
             records: [],
-			returnedFilterValues: [],
+			
+			/* Table information: the headers get defined by the type of report requested, and then the table is rendered as an HTML object in the table state */
 			headers: [],
             table: [],
+
+			/* Report parameters sent via GET to the php script that retrieves the appropriate data */
 			type: 'All',
             eval: '1',
             report: 'ID',
-            eval_div_visible: true,
+
+			/* For one of the reports, the user specifies which eval cycle should be reported on. In other cases, this field is hidden */
+            eval_div_visible: false,
         }
         this.handleReportChange = this.handleReportChange.bind(this);
 		this.exportToCSV = this.exportToCSV.bind(this);
 		this.evalField = this.evalField.bind(this);
-	}
-
-	componentDidMount() {
-	}
-
-	evalField() {
-		if (this.state.eval_div_visible) {
-			return (	
-				<InputGroup className="mb-3">
-              		<InputGroup.Prepend>
-                   		<InputGroup.Text>Eval number:</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl 
-                  		id="eval"
-                  		value={this.state.eval}
-                   		onChange={e => this.setState({eval: e.target.value})}/>
-               	</InputGroup>
-			);
-		} else {
-			return null;
-		}
 	}
 
 	render() {
@@ -100,58 +85,30 @@ class Reports extends Component {
     	)
 	};
 
-
-	/* FILTER METHODS: */	
-	
-	/* Check to see if the filter's Type and Value aren't empty. 
-	 * ANOTHER REFACTORING OPPORTUNITY: this is the same processFilter() 
-	 * method in AddShipments, so the two of them should probably be 
-	 * moved to (and maintained in) just one location. */
-	processFilter() {
-        //TODO: Check if it's not type and throw an alert!
-		var getQuery = 'type=' + this.state.returnedFilterValues[0][2];
-		
-		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
-		filterReq = new XMLHttpRequest();
-		filterReq.open(
-			"GET",
-			getReq,
-			true
-		);
-		filterReq.onload = function (e) {
-			if (filterReq.readyState === 4 && filterReq.status === 200) {
-				this.setState({
-					records: JSON.parse(filterReq.responseText),
-				});
-			} else {
-				console.error(filterReq.statusText);
-			}
-		}.bind(this);
-		filterReq.send();	
+	/* Render the eval field, if necessary) */
+	evalField() {
+		if (this.state.eval_div_visible) {
+			return (	
+				<InputGroup className="mb-3">
+              		<InputGroup.Prepend>
+                   		<InputGroup.Text>Eval number:</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <FormControl 
+                  		id="eval"
+                  		value={this.state.eval}
+                   		onChange={e => this.setState({eval: e.target.value})}/>
+               	</InputGroup>
+			);
+		} else {
+			return null;
+		}
 	}
-
-    
-	/*Callback method for filter components that sends the contents of the
-    * filter to this.state.filterVals. POTENTIAL REFACTORING OPPORTUNITY: 
-	* this method is the same as the one in AddShipments... perhaps it should
-	* be maintained in only one location and imported where needed?
-    */
-	getFilterValues = (type, equality, value, key) => {
-		var filterVals = this.state.returnedFilterValues;
-		  
-        if (type === "Date") {
-            value = this.getDateFormat(value);
-        } 
-        filterVals[key] = [type,equality,value];
-
-		this.setState({ returnedFilterValues: filterVals});
-	};
-
+	
 	//This is a placeholder function so the table component doesn't throw an error when there is no function for the getRows prop. In a later refactoring, this should go away and instead the CustomTable component should set an empty function by default.
 	getRowsDefault = () => {
 	}
 
+	/* Change the state to reflect the correct report. Also, make the eval field visible if necessary */
     handleReportChange(e) {
 
 		//Make the Eval field visible if the user selects "ID if Eval = " 
@@ -165,18 +122,17 @@ class Reports extends Component {
 			report: e.target.value,
 			eval_div_visible: eval_visible,
 		});
-		
-		console.log("e.target.value = " + e.target.value);
-		console.log("this.state.report = " + this.state.report);
-		console.log("Show div? " + this.state.eval_div_visible);
     }
 
+	/* Here is where the gruntwork is done in calling the right script, sending it the right information, parsing what comes back and building a table to display it. Because each report is different, there's a lot to unpack here... */
     generateReport = () => {
-        //call the right script
+
+        //All the scripts start with this address:
         var script_address = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_reports_";
 
-		//Wipe the table headers and prepare to repopulate
+		//Based on the report selected, we'll need to call a specific script at the location above. We'll also need specific table headers for the information being displayed. Those both happen here: */
 		var headers = [];
+
         if (this.state.report === 'ID') {
             script_address = script_address + "samples_x_child.php";
             headers = ['ID','Frequency','Percent','Cumulative'];
@@ -185,6 +141,7 @@ class Reports extends Component {
             headers = ['Eval','Frequency','Percent','Cumulative'];
         } else if (this.state.report === 'ID Eval') {
             script_address = script_address + "eval_x_child.php";
+			//This header is tricky, because it needs to include x columns, where x is the number of eval cycles in the database. Thus, we need to retrieve and parse the information before we can complete it. For now, we just put the ID field:
 			headers = ['ID'];
         } else if (this.state.report === "ID if Eval =") {
             script_address = script_address + "id_x_eval_equals.php";
@@ -192,15 +149,8 @@ class Reports extends Component {
         } else {
         }
 
-		//Allow for wildcard in SQL retrieval
-		var type;
-		if (this.state.type === "All") {
-			type = '*';
-		} else {
-			type = this.state.type;
-		}
-
-        script_address = script_address + "?type=" + type + "&eval=" + this.state.eval;
+		//Include any additional parameters in the GET request:
+        script_address = script_address + "?type=" + this.state.type + "&eval=" + this.state.eval;
 
         //send the request
         var request;
@@ -213,34 +163,33 @@ class Reports extends Component {
         );
         request.onload = function (e) {
             if (request.readyState === 4 && request.status === 200) {
-                console.log(script_address); 
-                console.log(request.responseText);
                 this.setState({
 				records: JSON.parse(request.responseText),
                });
 
+				// OKAY... now that we've successfully retrieved the necessary data, we need to do several things. First, the reports require additional information about totals, cumulative totals etc. We collect that using the variables below:
 				var total = 0;
 				var cumulativeTotal = 0;
 				var count = [];
 				var percent = []; 
 				var cumulative = [];
+
+				//If the user wants ID x Evals, then we need to produce a dynamic number of rows based on the number of eval cycles that have been conducted. These are where we store data to work that out.
 				var eval_number = [];
 				var data_by_eval = [];
 
 				//The "ID Eval" report is a unique case... the table needs to know how many Evals there are in order to print the right number of columns. Here we organize the data from the database so that can easily be infered, and then from there build the headers
 				if (this.state.report === 'ID Eval') {
-					//TODO: use this variable to track totals for each eval, in order to include them at the bottom like the other reports
-					var cumulative_eval_totals = [];
-					var cumulative_total = 0;
 
+					//When the data comes out of the database, every record for every eval for every ID is separate. We need to restructure this data so one object contains the id along with the count of records for that id for each eval. This gnarly bit of code iterates over this.state.records and reorders the data into data_by_eval, which will eventually replace this.state.records. 
 					for (var current_record of this.state.records) {
+						//Have we found a record with this ID yet?
 						var foundIt = false;
+						//As long as there are reordered records to check...
 						if (data_by_eval.length > 0) {
 							for (var new_record of data_by_eval) {
 								var prop = "eval" + current_record.eval;
-								console.log("Iterating over record with ID " + current_record.id);
 								if (current_record.id === new_record.id) {	
-								console.log("current value of " + prop + ": " + new_record[prop]);
 									if (typeof new_record[prop] === "undefined") {
 										new_record[prop] = 1;
 									} else {
@@ -253,7 +202,7 @@ class Reports extends Component {
 								}
 							}
 						}
-						
+						//If no record for that id has already been created in data_by_eval... make one.	
 						if (!foundIt) {
 							var new_row = {id:current_record.id};
 							new_row["eval" + current_record.eval] = 1;
@@ -292,47 +241,50 @@ class Reports extends Component {
 
 					//Add totals row
 					data_by_eval.push(total_row);
-					console.log(data_by_eval);
 					this.setState({records: data_by_eval});
 					for (var i = 1; i < eval_number.length; i++) {
 						headers.push("Eval" + i);
 					}
 					headers.push("Total");
 				} else {
-					//This process of checking for the right headers is no longer needed... but one thing at a time.
-					for (var headerIdx = 0; headerIdx < headers.length; headerIdx++) {
-						if (headers[headerIdx] === 'Percent') {
-							for (var record = 0; record < this.state.records.length; record++) {
-								count[record] = +this.state.records[record]['frequency'];
-								total = +total + +this.state.records[record]['frequency'];
-								console.log("count = " + count[record]);
-								console.log("total = " + total);
-							}		
+					//As long as the record selected wasn't "ID Eval", then the process is much easier. We just have to calculate singular and cumulative totals and append them to the records.
+					var records = this.state.records;
+					//Assuming there are records to count...
+					if (this.state.records.length > 0) {
+						for (var record = 0; record < this.state.records.length; record++) {
+							count[record] = +this.state.records[record]['frequency'];
+							total = +total + +this.state.records[record]['frequency'];
+						}		
 				
-							/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
-							for (var i = 0; i < count.length; i++) {
-								cumulativeTotal += count[i];
-								percent[i] = (count[i] / total);
-								cumulative[i] = (cumulativeTotal / total);
-							}
-	
-							/* Concatenate the percentages and cumulatives with the existing records */
-							var records = this.state.records;
-							for (var record = 0; record < records.length; record++) {
-								records[record]["percent"] = (percent[record]*100).toFixed(2);
-								records[record]["cumulative"] = (cumulative[record]*100).toFixed(2);
-							}
-
-							/* Add a row for totals. 
-    	                       TODO: put this in a separate line below, as opposed to in the record. */
-							records.push({id:"Total",frequency:cumulativeTotal, percent:records[records.length-1]["cumulative"], cumulative:records[records.length-1]["cumulative"]});
-							this.setState({ records: records });
-							console.log(this.state.records);
+						/* Now that we have frequency counts, determine percentage and cumulative percentage for each record */
+						for (var i = 0; i < count.length; i++) {
+							cumulativeTotal += count[i];
+							percent[i] = (count[i] / total);
+							cumulative[i] = (cumulativeTotal / total);
 						}
+	
+						/* Concatenate the percentages and cumulatives with the existing records */
+						/* Unfortunately this second loop through the same data is necessary because previously we didn't have the totals! */
+						for (var record = 0; record < records.length; record++) {
+							records[record]["percent"] = (percent[record]*100).toFixed(2);
+							records[record]["cumulative"] = (cumulative[record]*100).toFixed(2);
+						}
+					}	
+
+					/* Add a row for totals. */
+					var total_row = ({id:"Total",eval:"Total",frequency:cumulativeTotal});
+					if (records.length === 0) {
+						records[0] = total_row;
+					} else {
+						total_row["percent"] = records[records.length-1]["cumulative"];
+						total_row["cumulative"] = records[records.length-1]["cumulative"];
+						records.push(total_row);
 					}
+							
+					this.setState({ records: records });
 				}
 
-
+				//Now we have the reordered data, with the appropriate totals information, and the headers to match. Let's build the table!
         		this.setState({
             		table: [<CustomTable getRows={this.getRowsDefault} numCols={headers.length} numRows={this.state.records.length} cols={headers} toPopulateWith={this.state.records} reset={false} click={this.clickRowCallback}/>],
         			headers: headers,
@@ -345,12 +297,8 @@ class Reports extends Component {
 
         request.send();
 
-        //if ID eval, need to count number of evals and update the table
-        //headers
-
-        //erase any previous table
-        //make the new table
     }
+
 	/* Export data in this.state.samples to CSV. */
 	exportToCSV() {
 		var element = document.createElement('a');
@@ -359,6 +307,8 @@ class Reports extends Component {
 		for (var header of this.state.headers) {
 			data = data + header + ',';
 		}
+		
+		data = data + '\n';
 
 		for (var i = 0; i < this.state.records.length; i++) {
 

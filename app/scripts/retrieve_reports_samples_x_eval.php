@@ -5,9 +5,14 @@ include "connect.php";
 	
     $type = $_GET['type'];
 
-    $query = "SELECT eval, COUNT(*) AS frequency FROM Samples WHERE unrestrictedconsent = TRUE AND type = '";
-	$query = $query . $type;
-    $query = $query . "' GROUP BY eval ORDER BY eval";
+    $query = "SELECT eval, COUNT(*) AS frequency FROM Samples WHERE unrestrictedconsent = TRUE ";
+
+	if ($type != "All") {
+		$query = $query . " AND type = '";
+		$query = $query . $type . "'";
+	}
+
+    $query = $query . " GROUP BY eval ORDER BY eval";
 
 	$conn = connect();
 
