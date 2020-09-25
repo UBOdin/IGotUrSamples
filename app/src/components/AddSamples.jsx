@@ -7,7 +7,7 @@ import CustomAlertBanner from './CustomAlertBanner'
  */
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* AddSamples: this is the interface for entering new sample information into
  * the database.
  */
@@ -397,7 +397,7 @@ class AddSamples extends Component {
 			}
 		
 		var sendReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addsamples.php?" + getQuery;
+		var getReq = phpServerURL+"/app/scripts/addsamples.php?" + getQuery;
 		console.log(getReq)
 		sendReq = new XMLHttpRequest();
 		sendReq.open(

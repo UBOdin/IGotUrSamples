@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Row, Col, ButtonGroup, Button } from 'react-bootstrap';
 import CustomTable from './CustomTable'; 
 import CustomAlertBanner from './CustomAlertBanner';
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* This is the 'See Shipments' page. */
 class ViewShipments extends Component {
    	constructor(props) {
@@ -28,11 +28,11 @@ class ViewShipments extends Component {
 	 * filter out any of those that have been marked received. */
 	componentDidMount() {
 		var request;
-
+		console.log(phpServerURL);
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all_shipments.php",
+			phpServerURL+"/app/scripts/retrieve_all_shipments.php",
 			true
 		);
 		request.onload = function (e) {
@@ -139,7 +139,7 @@ class ViewShipments extends Component {
 			mark_received_request = new XMLHttpRequest();
 			mark_received_request.open(
 				"GET",
-				"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/markreceived.php?" + getQuery,
+				phpServerURL+"/app/scripts/markreceived.php?" + getQuery,
 				true
 			);
 			

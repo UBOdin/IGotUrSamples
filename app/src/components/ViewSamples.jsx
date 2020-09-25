@@ -4,7 +4,7 @@ import CustomTable from './CustomTable';
 import CustomAlertBanner from './CustomAlertBanner';
 import Filter from './Filter';
 import DatePicker from 'react-datepicker'
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* This is the 'Filter and Export' page--here the user can view available samples, add and 
  * define any number of filters for that view, and export information to a CSV file for 
  * further analysis. */
@@ -37,7 +37,7 @@ class ViewSamples extends Component {
 		request = new XMLHttpRequest();
 		request.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php",
+			phpServerURL+"/app/scripts/retrieve_all.php",
 			true
 		);
 		request.onload = function (e) {
@@ -110,7 +110,7 @@ class ViewSamples extends Component {
 			}
 		}
 		var filterReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
+		var getReq = phpServerURL+"/app/scripts/retrieve.php?" + getQuery;
 		filterReq = new XMLHttpRequest();
 		filterReq.open(
 			"GET",
@@ -533,7 +533,7 @@ class SampleModal extends Component {
 		
 		
 		var sendReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/editsample.php?" + getQuery;
+		var getReq = phpServerURL+"/app/scripts/editsample.php?" + getQuery;
 		sendReq = new XMLHttpRequest();
 		sendReq.open(
 			"GET",

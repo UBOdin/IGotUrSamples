@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* Custom Row item that populates the tables used throughout the website. 
  * Receives the number of columns and data to populate itself with via props, 
  * and uses two callback methods (also received via props) to communicate with 

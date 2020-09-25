@@ -3,7 +3,7 @@ import { Form, Row, Col } from 'react-bootstrap';
 
 /* Dependency: react-datepicker */
 import DatePicker from 'react-datepicker'
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* A filter is a single, duplicable row of fields where a 
  * user can specify the type, value and equality condition 
  * to use when filtering. */

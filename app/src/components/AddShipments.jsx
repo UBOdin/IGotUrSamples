@@ -9,7 +9,7 @@ import Filter from './Filter';
  */
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* AddShipments: this is the interface for entering a new shipment into the
  * database. This works very similarly to AddSamples.
  */
@@ -107,7 +107,7 @@ class AddShipments extends Component {
 			}
 		}
 		
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve.php?" + getQuery;
+		var getReq = phpServerURL+"/app/scripts/retrieve.php?" + getQuery;
 		
 		var filterReq;  
         filterReq = new XMLHttpRequest();
@@ -159,7 +159,7 @@ class AddShipments extends Component {
 
 		requestAllSamples.open(
 			"GET",
-			"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Samples",
+			phpServerURL+"/app/scripts/retrieve_all.php?table=Samples",
 			true
 		);
 		
@@ -181,7 +181,7 @@ class AddShipments extends Component {
 
 				request_tubes.open(
 					"GET",
-					"https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_all.php?table=Tubes",
+					phpServerURL+"/app/scripts/retrieve_all.php?table=Tubes",
 					true
 				);
         
@@ -667,7 +667,7 @@ class AddShipments extends Component {
                 //shipment_tubes table (whichever makes sense)
 		
 		var sendReq;
-		var getReq = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/addshipment.php?" + getQuery;
+		var getReq = phpServerURL+"/app/scripts/addshipment.php?" + getQuery;
 		sendReq = new XMLHttpRequest();
 		sendReq.open(
 		    "GET",

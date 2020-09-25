@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Table, Form } from 'react-bootstrap';
 import Row from './Row';
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* Defines the tables used throughout the app. They take in information 
  * about the size of the table--the number of rows and columns--and the 
  * desired column headers via props, and interface with the Row components 

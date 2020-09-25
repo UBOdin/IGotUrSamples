@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert } from 'react-bootstrap'; 
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 /* CustomAlertBanner renders an Alert in bootstrap 
  * using props to determine the variant (success, 
  * warning etc.; see the react-bootstrap documentation) 

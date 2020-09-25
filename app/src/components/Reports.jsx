@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Form, FormControl, InputGroup, Row, Col} from 'react-bootstrap';
 import CustomTable from './CustomTable';
-
+const phpServerURL = require('../config/serverconfig').phpServerURL;
 
 /* On the 'Reports' page, a set of pre-defined reports based on the database can be generated and exported, per the clients request. */
 class Reports extends Component {
@@ -128,7 +128,7 @@ class Reports extends Component {
     generateReport = () => {
 
         //All the scripts start with this address:
-        var script_address = "https://cse.buffalo.edu/eehuruguayresearch/app/scripts/retrieve_reports_";
+        var script_address = phpServerURL+"/app/scripts/retrieve_reports_";
 
 		//Based on the report selected, we'll need to call a specific script at the location above. We'll also need specific table headers for the information being displayed. Those both happen here: */
 		var headers = [];
