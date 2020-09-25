@@ -1,0 +1,1 @@
+exports.phpServerURL = "http://localhost/IGotUrSamples";
